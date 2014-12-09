@@ -1,0 +1,58 @@
+<project name="ella.runtime" default="dex">
+  <property name="ella.dir" location=".."/>
+  <property file="${ella.dir}/ella.settings"/>
+  <property name="src" location="src"/>
+  <property name="build" location="build"/>
+  <property name="dist"  location="dist"/>
+  <property name="ella.dir" location=".."/>
+  <property name="jarname" value="${ella.dir}/bin/ella.runtime.jar"/>
+  <property name="dexname" value="${ella.dir}/bin/ella.runtime.dex"/>
+
+  <target name="init">
+    <!-- Create the time stamp -->
+    <tstamp/>
+    <!-- Create the build directory structure used by compile -->
+    <mkdir dir="${build}"/>
+  </target>
+
+  <target name="compile" depends="init"
+        description="compile the source " >
+    <!-- Compile the java code from ${src} into ${build} -->
+    <javac srcdir="${src}" destdir="${build}" includeantruntime="false" debug="true">
+	  <classpath>
+		<pathelement location="${androidjar}"/>
+		<!--pathelement location="libs/httpcore-4.3.3.jar"/-->
+		<!--pathelement location="libs/httpmime-4.3.6.jar"/-->
+	  </classpath>
+	</javac>
+  </target>
+
+  <target name="dex" depends="jar">
+    <exec executable="/opt/android-sdk-linux/build-tools/19.0.0/dx"
+          spawn="true">
+	  <arg value="--dex"/>
+	  <arg value="--output"/>
+	  <arg value="${dexname}"/>
+	  <arg value="${jarname}"/>
+	</exec>
+  </target>
+
+  <target name="jar" depends="compile"
+        description="generate the distribution" >
+	<zip destfile="${jarname}"  update="true">
+	  <fileset dir="${build}" includes="**/*.class"/>
+	  <zipgroupfileset dir="libs">
+		<filename name="httpmime-4.3.6.jar"/>
+	  </zipgroupfileset>
+	</zip>
+  </target>
+
+  <target name="clean"
+        description="clean up" >
+    <!-- Delete the ${build} and ${dist} directory trees -->
+    <delete dir="${build}"/>
+    <delete dir="${dist}"/>
+	<delete file="${jarname}"/>
+	<delete file="${dexname}"/>
+  </target>
+</project>

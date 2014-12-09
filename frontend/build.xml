@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="ella.frontend" default="compile">
+  
+  <property name="ella.dir" location=".."/>
+  <property name="warname" value="${ella.dir}/bin/ella.war"/>
+  <property name="tomcat.dir" location="${ella.dir}/tomcat"/>
+
+  <path id="catalina-ant-classpath">
+    <fileset dir="${tomcat.dir}/lib">
+	  <include name="catalina-ant.jar"/>
+	  <include name="tomcat-coyote.jar"/>
+	  <include name="tomcat-util.jar"/>
+	</fileset>
+    <fileset dir="${tomcat.dir}/bin">
+	  <include name="tomcat-juli.jar"/>
+    </fileset>
+  </path>
+
+  <taskdef name="catalina-deploy" 
+		   classname="org.apache.catalina.ant.DeployTask" 
+		   classpathref="catalina-ant-classpath"/>
+
+  <property name="tomcat.manager" value="http://localhost:8080/manager/text"/>
+
+  <target name="compile">
+    <mkdir dir="classes"/>
+    <javac debug="true" debuglevel="source,lines,vars" includeantruntime="false"
+	   srcdir="src" destdir="classes">
+      <classpath>
+		<pathelement location="${tomcat.dir}/lib/servlet-api.jar"/>
+		<pathelement location="${tomcat.dir}/lib/catalina.jar"/>
+		<pathelement location="${tomcat.dir}/lib/tomcat-coyote.jar"/>
+      </classpath>
+    </javac>
+  </target>
+
+  <condition property="web.xml.exists">
+	<resourceexists>
+	  <file file="WebContent/web.xml"/>
+	</resourceexists>
+  </condition>
+  
+  <target name="-create-web.xml" unless="${web.xml.exists}">
+	<copy file="web_template.xml" 
+		  tofile="web.xml"/>
+	 <replace file="web.xml" token="###ella.dir###" value="${ella.dir}"/>
+  </target>
+
+  <target name="war" depends="compile,-create-web.xml">
+	<war destfile="${warname}" webxml="web.xml">
+	  <fileset dir="WebContent"/>
+	  <lib dir="lib"/>
+	  <classes dir="classes"/>
+	</war>
+  </target>
+
+  <target name="deploy" depends="war">
+    <exec executable="${tomcat.dir}/bin/startup.sh"
+		  spawn="false"
+		  failonerror="true"/>
+	<waitfor maxwait="3" maxwaitunit="minute" checkevery="1000">
+		<http url="http://localhost:8080"/>
+	</waitfor>
+    <echo>Starting Tomcat server</echo>
+    <catalina-deploy username="ellaadmin"
+					 password="apposcopyella00"
+					 url="${tomcat.manager}"
+					 path="/ella"
+					 update="true"
+					 localWar="${warname}"/>
+  </target>
+
+  <target name="clean">
+    <delete dir="classes"/>
+	<delete file="${warname}"/>
+  </target>
+
+  </project>        
+

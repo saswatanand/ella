@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="ella" default="build">
+
+  <dirname property="ella.dir" file="${ant.file}"/>
+
+  <target name="init">
+    <mkdir dir="bin"/>
+  </target>
+
+  <target name="build" depends="init">
+    <ant antfile="${ella.dir}/instrument/build.xml" target="jar"
+         inheritAll="false" useNativeBasedir="true"/>
+    <ant antfile="${ella.dir}/runtime/build.xml" target="dex"
+         inheritAll="false" useNativeBasedir="true"/>
+  </target>
+
+  <target name="clean">
+    <ant antfile="${ella.dir}/instrument/build.xml" target="clean"
+         inheritAll="false" useNativeBasedir="true"/>
+    <ant antfile="${ella.dir}/runtime/build.xml" target="clean"
+         inheritAll="false" useNativeBasedir="true"/>
+    <delete dir="bin"/>
+  </target>
+
+</project>
