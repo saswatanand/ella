@@ -18,6 +18,7 @@ public class Main
 		String inputFile = null;
 		String outputFile = null;
 		String ellaRuntime = null;
+		String ellaSettingsFile = null;
 
 		int i = 0;
 		while(i < args.length){
@@ -29,6 +30,9 @@ public class Main
 				i++;
 			} else if(a.equals("-ella.runtime")){
 				ellaRuntime = args[i+1];
+				i++;
+			} else if(a.equals("-ella.settings")){
+				ellaSettingsFile = args[i+1];
 				i++;
 			} else if(inputFile == null)
 				inputFile = a;
@@ -49,20 +53,20 @@ public class Main
 			return;
 		}
 
-		instrument(inputFile, outputFile, ellaRuntime);
+		instrument(inputFile, outputFile, ellaRuntime, ellaSettingsFile);
 	}
 
-	static void instrument(String inputFile, String outputFile, String ellaRuntime) throws IOException
+	static void instrument(String inputFile, String outputFile, String ellaRuntime, String ellaSettingsFile) throws IOException
 	{
 		if(inputFile.endsWith(".apk")){
 			assert outputFile.endsWith(".apk");
 			String inputDexFile = extractClassesDex(inputFile);
-			String outputDexFile = Instrument.instrument(inputDexFile, ellaRuntime);
+			String outputDexFile = Instrument.instrument(inputDexFile, ellaRuntime, ellaSettingsFile);
 			writeOutput(outputDexFile, inputFile, outputFile);
 
 		} else {
 			assert inputFile.endsWith(".dex") && outputFile.endsWith(".dex");
-			Instrument.instrument(inputFile, outputFile, ellaRuntime);
+			Instrument.instrument(inputFile, outputFile, ellaRuntime, ellaSettingsFile);
 		}
 	}
 

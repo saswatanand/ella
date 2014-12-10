@@ -20,7 +20,7 @@
     <!-- Compile the java code from ${src} into ${build} -->
     <javac srcdir="${src}" destdir="${build}" includeantruntime="false" debug="true">
 	  <classpath>
-		<pathelement location="${androidjar}"/>
+		<pathelement location="${android.jar}"/>
 		<!--pathelement location="libs/httpcore-4.3.3.jar"/-->
 		<!--pathelement location="libs/httpmime-4.3.6.jar"/-->
 	  </classpath>
@@ -28,7 +28,7 @@
   </target>
 
   <target name="dex" depends="jar">
-    <exec executable="/opt/android-sdk-linux/build-tools/19.0.0/dx"
+    <exec executable="${dx}"
           spawn="true">
 	  <arg value="--dex"/>
 	  <arg value="--output"/>
@@ -41,9 +41,6 @@
         description="generate the distribution" >
 	<zip destfile="${jarname}"  update="true">
 	  <fileset dir="${build}" includes="**/*.class"/>
-	  <zipgroupfileset dir="libs">
-		<filename name="httpmime-4.3.6.jar"/>
-	  </zipgroupfileset>
 	</zip>
   </target>
 

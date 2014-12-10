@@ -1,3 +1,0 @@
-#set this path
-dxjar=/opt/android-sdk-linux/build-tools/19.1.0/lib/dx.jar
-androidjar=/opt/android-sdk-linux/platforms/android-19/android.jar

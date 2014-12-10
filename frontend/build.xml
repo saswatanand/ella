@@ -2,8 +2,9 @@
 <project name="ella.frontend" default="compile">
   
   <property name="ella.dir" location=".."/>
+  <property file="${ella.dir}/ella.settings"/>
   <property name="warname" value="${ella.dir}/bin/ella.war"/>
-  <property name="tomcat.dir" location="${ella.dir}/tomcat"/>
+  <!--property name="tomcat.dir" location="${ella.dir}/tomcat"/-->
 
   <path id="catalina-ant-classpath">
     <fileset dir="${tomcat.dir}/lib">
@@ -62,8 +63,8 @@
 		<http url="http://localhost:8080"/>
 	</waitfor>
     <echo>Starting Tomcat server</echo>
-    <catalina-deploy username="ellaadmin"
-					 password="apposcopyella00"
+    <catalina-deploy username="${tomcat.username}"
+					 password="${tomcat.password}"
 					 url="${tomcat.manager}"
 					 path="/ella"
 					 update="true"

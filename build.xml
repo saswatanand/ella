@@ -2,6 +2,7 @@
 <project name="ella" default="build">
 
   <dirname property="ella.dir" file="${ant.file}"/>
+  <property file="${ella.dir}/ella.settings"/>
 
   <target name="init">
     <mkdir dir="bin"/>

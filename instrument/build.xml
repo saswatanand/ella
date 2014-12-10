@@ -22,7 +22,7 @@
 		<pathelement location="libs/guava-18.0.jar"/>
 		<pathelement location="libs/jsr305-1.3.9.jar"/>
 		<pathelement location="libs/util-2.0.3-dev.jar"/>
-		<pathelement location="${dxjar}"/>
+		<pathelement location="${dx.jar}"/>
 	  </classpath>
 	</javac>
   </target>
