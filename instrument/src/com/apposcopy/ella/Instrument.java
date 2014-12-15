@@ -23,14 +23,9 @@ public class Instrument
 {
 	static MethodReference probeMethRef;
 
-	public static String instrument(String inputFile, String ellaRuntime, String ellaSettingsFile) throws IOException
+	public static String instrument(String inputFile) throws IOException
 	{
-		return instrument(inputFile, null, ellaRuntime, ellaSettingsFile);
-	}
-
-	public static String instrument(String inputFile, String outputFile, String ellaRuntime, String ellaSettingsFile) throws IOException
-	{
-		File mergedFile = mergeEllaRuntime(inputFile, ellaRuntime, ellaSettingsFile);
+		File mergedFile = mergeEllaRuntime(inputFile);
 
 		DexFile dexFile = DexFileFactory.loadDexFile(mergedFile, 15);
 		
@@ -88,10 +83,8 @@ public class Instrument
             }
         }
 
-		if(outputFile == null){
-			File outputDexFile = File.createTempFile("outputclasses", ".dex");
-			outputFile = outputDexFile.getAbsolutePath();
-		}
+		File outputDexFile = File.createTempFile("outputclasses", ".dex");
+		String outputFile = outputDexFile.getAbsolutePath();
  
         DexFileFactory.writeDexFile(outputFile, new DexFile() {
 				@Override public Set<? extends ClassDef> getClasses() {
@@ -123,11 +116,9 @@ public class Instrument
 		return null;	
 	}
 
-	static File mergeEllaRuntime(String inputFile, String ellaRuntime, String ellaSettingsFile) throws IOException
+	static File mergeEllaRuntime(String inputFile) throws IOException
 	{
-		Properties props = new Properties();
-		props.load(new FileInputStream(ellaSettingsFile));
-		final String dxJar = props.getProperty("dx.jar");
+		String dxJar = Config.g().dxJar;
 		if(dxJar == null)
 			throw new RuntimeException("Variable dx.jar not set");
 		try{
@@ -137,7 +128,7 @@ public class Instrument
 			java.lang.reflect.Method mainMethod = dexMergerClass.getDeclaredMethod("main", (new String[0]).getClass());
 
 			File mergedDex = File.createTempFile("ella",".dex");
-			mainMethod.invoke(null, (Object) new String[]{mergedDex.getAbsolutePath(), inputFile, ellaRuntime});
+			mainMethod.invoke(null, (Object) new String[]{mergedDex.getAbsolutePath(), inputFile, Config.g().ellaRuntime});
 			return mergedDex;
 		} catch(ClassNotFoundException e){
 			throw new Error(e);

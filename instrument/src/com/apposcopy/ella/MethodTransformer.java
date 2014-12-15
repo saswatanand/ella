@@ -117,7 +117,7 @@ public class MethodTransformer
 			impl.addInstruction(0, newInstruction);
 		}
 
-		int id = CoverageId.idFor(Util.signatureOf(method));
+		int id = CoverageId.g().idFor(Util.signatureOf(method));
 		int probeIdNumBits = numBits(dest);
 		if(probeIdNumBits == 4){
 			impl.addInstruction(0, new BuilderInstruction35c(Opcode.INVOKE_STATIC, 1, dest, 0, 0, 0, 0, Instrument.probeMethRef));

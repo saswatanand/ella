@@ -6,7 +6,10 @@ dx=/opt/android-sdk-linux/build-tools/19.0.0/dx
 
 android.jar=/opt/android-sdk-linux/platforms/android-19/android.jar
 
+#tomcat settings
+tomcat.dir=/home/saswat/ellarepo/tomcat
 tomcat.username=xxx
 tomcat.password=xxx
 
-tomcat.dir=xxxx
+#where ella stores coverage data and other stuff
+ella.outdir=/home/saswat/ellaoutdir

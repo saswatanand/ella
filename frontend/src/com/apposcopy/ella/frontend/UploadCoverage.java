@@ -31,7 +31,7 @@ public class UploadCoverage extends HttpServlet
 		String covData = request.getParameter("cov");
 		String ellaDir = getServletContext().getInitParameter("ella.dir");
 
-		System.out.println("pkg: "+pkg+" covData: "+covData+" ell.dir: "+ellaDir);
+		//System.out.println("pkg: "+pkg+" covData: "+covData+" ell.dir: "+ellaDir);
 
 		BufferedWriter out = null;
 		final PrintWriter writer = response.getWriter();

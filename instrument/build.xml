@@ -22,6 +22,7 @@
 		<pathelement location="libs/guava-18.0.jar"/>
 		<pathelement location="libs/jsr305-1.3.9.jar"/>
 		<pathelement location="libs/util-2.0.3-dev.jar"/>
+		<pathelement location="libs/AXMLPrinter2.jar"/>
 		<pathelement location="${dx.jar}"/>
 	  </classpath>
 	</javac>
@@ -40,6 +41,6 @@
     <!-- Delete the ${build} and ${dist} directory trees -->
     <delete dir="${build}"/>
     <delete dir="${dist}"/>
-	<delete file="${jarfile}"/>
+	<delete file="${jarname}"/>
   </target>
 </project>

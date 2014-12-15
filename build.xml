@@ -5,7 +5,6 @@
   <property file="${ella.dir}/ella.settings"/>
 
   <target name="init">
-    <mkdir dir="bin"/>
   </target>
 
   <target name="build" depends="init">
@@ -20,7 +19,6 @@
          inheritAll="false" useNativeBasedir="true"/>
     <ant antfile="${ella.dir}/runtime/build.xml" target="clean"
          inheritAll="false" useNativeBasedir="true"/>
-    <delete dir="bin"/>
   </target>
 
 </project>
