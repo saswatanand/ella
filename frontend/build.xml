@@ -44,13 +44,13 @@
   <target name="-create-web.xml" unless="${web.xml.exists}">
 	<copy file="web_template.xml" 
 		  tofile="web.xml"/>
-	 <replace file="web.xml" token="###ella.dir###" value="${ella.dir}"/>
+	 <replace file="web.xml" token="###ella.outdir###" value="${ella.outdir}"/>
   </target>
 
   <target name="war" depends="compile,-create-web.xml">
 	<war destfile="${warname}" webxml="web.xml">
 	  <fileset dir="WebContent"/>
-	  <lib dir="lib"/>
+	  <!--lib dir="lib"/-->
 	  <classes dir="classes"/>
 	</war>
   </target>

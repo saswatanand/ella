@@ -7,8 +7,8 @@
   <display-name>STAMP</display-name>
 
   <context-param>
-    <param-name>ella.dir</param-name>
-    <param-value>###ella.dir###</param-value>
+    <param-name>ella.outdir</param-name>
+    <param-value>###ella.outdir###</param-value>
   </context-param>
 
 </web-app>

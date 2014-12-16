@@ -13,13 +13,9 @@ import java.io.*;
 
 public class Ella
 {
-	private static final String COVERAGE_FILE = "/ella_coverage";
-	private static final String LOG_DIR_PREFIX = "/data/data/";
-	private static final String PKG_FILE = "/sdcard/ella_pkg.txt";
 	private static final String RECORD_COVERAGE_FILE = "/sdcard/ella_record_coverage";
-	private static final String DUMP_FINISHED_FILE = "/ella_dump_finished";
-
-	final static String url = "http://kuhu1.stanford.edu:8080/ella/uploadcoverage";
+	private static final String URL_FILE = "/sdcard/ella_url.txt";
+	private static String id; //instrumentation will set the value
 
 	public static final BitSet coverage = new BitSet();
 
@@ -33,9 +29,9 @@ public class Ella
 		coverage.set(mId);
 	}
 
-	private static void dumpCoverage(String pkg) throws IOException
+	private static void dumpCoverage(String url) throws IOException
 	{
-		System.out.println("ELLA: About to upload coverage data");
+		System.out.println("ELLA: About to upload coverage data to "+url);
 
 		/*
 		File file = new File(fileName);
@@ -48,12 +44,12 @@ public class Ella
 		HttpPost post = new HttpPost(url);
 
 		List<NameValuePair> nameValuePairs = new ArrayList();
-		nameValuePairs.add(new BasicNameValuePair("pkg", pkg));
+		nameValuePairs.add(new BasicNameValuePair("id", id));
 		nameValuePairs.add(new BasicNameValuePair("cov", coverage.toString()));
 
 		post.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 		HttpResponse response = client.execute(post);
-		System.out.println("ELLA: Coverage uploaded.");
+		System.out.println("ELLA: Coverage uploaded. id: "+id);
 	}
 
 
@@ -65,7 +61,6 @@ public class Ella
 		
 		public void run()
 		{
-
 			//keep recording coverage as long as this file exists on the sd card
 			File file = new File(RECORD_COVERAGE_FILE);
 			while(file.exists()){
@@ -79,18 +74,12 @@ public class Ella
 			String pkg = null;
 			try{
 				//dump coverage
-				pkg = new BufferedReader(new FileReader(PKG_FILE)).readLine();
-				dumpCoverage(pkg);
-
-				//create an empty file to indicate to the world that
-				//coverage has been dumped
-				FileWriter writer = new FileWriter(new File(LOG_DIR_PREFIX+pkg+DUMP_FINISHED_FILE));
-				writer.write(0);
-				writer.close();
+				String url = new BufferedReader(new FileReader(URL_FILE)).readLine();
+				dumpCoverage(url);
 			}catch(IOException e){
 				throw new Error(e);
 			}
-			System.out.println("ELLA: Created file "+LOG_DIR_PREFIX+pkg+DUMP_FINISHED_FILE);
+			System.out.println("ELLA: Shutdown hook done.");
 		}
 	}
 	

@@ -2,7 +2,6 @@
 <project name="ella" default="build">
 
   <dirname property="ella.dir" file="${ant.file}"/>
-  <property file="${ella.dir}/ella.settings"/>
 
   <target name="init">
   </target>
@@ -12,12 +11,16 @@
          inheritAll="false" useNativeBasedir="true"/>
     <ant antfile="${ella.dir}/runtime/build.xml" target="dex"
          inheritAll="false" useNativeBasedir="true"/>
+    <ant antfile="${ella.dir}/frontend/build.xml" target="war"
+         inheritAll="false" useNativeBasedir="true"/>
   </target>
 
   <target name="clean">
     <ant antfile="${ella.dir}/instrument/build.xml" target="clean"
          inheritAll="false" useNativeBasedir="true"/>
     <ant antfile="${ella.dir}/runtime/build.xml" target="clean"
+         inheritAll="false" useNativeBasedir="true"/>
+    <ant antfile="${ella.dir}/frontend/build.xml" target="clean"
          inheritAll="false" useNativeBasedir="true"/>
   </target>
 

@@ -12,10 +12,18 @@ import org.jf.dexlib2.dexbacked.DexBackedDexFile;
 import org.jf.dexlib2.iface.ClassDef;
 import org.jf.dexlib2.iface.DexFile;
 import org.jf.dexlib2.iface.Method;
+import org.jf.dexlib2.iface.Field;
 import org.jf.dexlib2.iface.reference.MethodReference;
 import org.jf.dexlib2.iface.MethodImplementation;
 import org.jf.dexlib2.immutable.ImmutableClassDef;
 import org.jf.dexlib2.immutable.ImmutableMethod;
+import org.jf.dexlib2.immutable.reference.ImmutableStringReference;
+import org.jf.dexlib2.iface.instruction.formats.*;
+import org.jf.dexlib2.Opcode;
+import com.apposcopy.ella.dexlib2builder.MutableMethodImplementation;
+import com.apposcopy.ella.dexlib2builder.BuilderInstruction;
+import com.apposcopy.ella.dexlib2builder.instruction.*;
+
 
 import com.google.common.collect.Lists;
 
@@ -36,8 +44,8 @@ public class Instrument
         for (ClassDef classDef: dexFile.getClasses()) {
             List<Method> methods = Lists.newArrayList(); 
             boolean modifiedMethod = false;
-
-			if(!classDef.getType().startsWith("Lcom/apposcopy/ella/runtime/")){  
+			String className = classDef.getType();
+			if(!className.startsWith("Lcom/apposcopy/ella/runtime/")){  
 				System.out.println("processing class *"+classDef.getType());
 				for (Method method: classDef.getMethods()) {
 					
@@ -62,7 +70,40 @@ public class Instrument
 															method.getAnnotations(),
 															newImplementation));
 						} else 
+							methods.add(method);
+					} else
 						methods.add(method);
+				}
+			} else if(className.equals("Lcom/apposcopy/ella/runtime/Ella;")){
+				modifiedMethod = true;
+				for (Method method: classDef.getMethods()) {
+					String name = method.getName();
+					if(name.equals("<clinit>")){
+						MethodImplementation code = method.getImplementation();
+						int regCount = code.getRegisterCount();
+						
+						//get the reference to the "private static String id" field
+						Field idField = null;
+						for(Field f : classDef.getStaticFields()){
+							if(f.getName().equals("id")){
+								idField = f;
+								break;
+							}
+						}
+
+						MutableMethodImplementation newCode = new MutableMethodImplementation(code, regCount+1);
+						newCode.addInstruction(0, new BuilderInstruction21c(Opcode.SPUT_OBJECT, regCount, idField));
+
+						newCode.addInstruction(0, new BuilderInstruction21c(Opcode.CONST_STRING, regCount, new ImmutableStringReference(Config.g().appId)));
+						
+						methods.add(new ImmutableMethod(
+														method.getDefiningClass(),
+														method.getName(),
+														method.getParameters(),
+														method.getReturnType(),
+														method.getAccessFlags(),
+														method.getAnnotations(),
+														newCode));
 					} else
 						methods.add(method);
 				}

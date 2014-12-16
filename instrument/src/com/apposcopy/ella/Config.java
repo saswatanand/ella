@@ -13,6 +13,7 @@ public class Config
 	public String inputFile;
 	public String outputFile;
 	public String ellaOutDir;
+	public String appId;
 
 	private static Config g;
 
@@ -34,10 +35,9 @@ public class Config
 		ellaOutDir = props.getProperty("ella.outdir");
 	}
 
-	String outDir() throws IOException
+	String outDir()
 	{
-		String p = new File(inputFile).getCanonicalPath().replace(File.separatorChar, '_');
-		String outDir = ellaOutDir + File.separator + p;
+		String outDir = ellaOutDir + File.separator + appId;
 		new File(outDir).mkdirs();
 		return outDir;
 	}

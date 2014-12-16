@@ -44,6 +44,14 @@ public class Main
 			System.out.println("New input file to process");
 			return;
 		}
+		
+		File inputFile = new File(config.inputFile);
+		if(!inputFile.exists()){
+			System.out.println("Input file "+config.inputFile+" does not exist.");
+			return;
+		}
+
+		config.appId = inputFile.getCanonicalPath().replace(File.separatorChar, '_');
 
 		App app = App.readApp(config.inputFile, config.outDir(), config.apktoolJar);
 
