@@ -85,8 +85,10 @@ public class ViewCoverage extends HttpServlet
 		BufferedReader idReader = new BufferedReader(new FileReader(idPath));
 		List<String> meths = new ArrayList();
 		String line;
+		int totalMeths = 0;
 		while((line = idReader.readLine()) != null){
 			meths.add(line);
+			totalMeths++;
 			//System.out.println(line);
 		}
 		idReader.close();
@@ -97,16 +99,24 @@ public class ViewCoverage extends HttpServlet
 		covData = covData.substring(1,covData.length()-1); //drop the leading { and trailing }
 		String[] ids = covData.split(", ");
 
-		//writer.print("<![CDATA[");
-		writer.print("<ul>");
+		StringBuilder builder = new StringBuilder();
+		int coveredMeths = 0;
+		builder.append("<ul>");
 		for(String id : ids){
 			int i = Integer.parseInt(id);
 			String m = meths.get(i);
-			writer.println("<li>"+escapeHtml4(m)+"</li>");
-			System.out.println(i + " " + m);
+			builder.append("<li>"+escapeHtml4(m)+"</li>");
+			//System.out.println(i + " " + m);
+			coveredMeths++;
 		}
-		writer.print("</ul>");
-		//writer.print("]]>");
+		builder.append("</ul>");
+
+		double coverage = (coveredMeths * 100.0) / totalMeths;
+		String s = "Coverage = "+coverage+"%";
+		s += "<br>"+builder.toString();
+
+		writer.print(s);
+
 		covReader.close();
 	}
 

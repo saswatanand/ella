@@ -1,1 +1,12 @@
 android.support.v.*
+com.facebook.android.*
+twitter4j.*
+org.apache.commons.*
+org.apache.http.*
+org.codehaus.jackson.*
+com.google.android.apps.*
+com.google.ads.*
+com.mercuryintermedia.*
+com.nineoldandroids.*
+com.pushio.*
+com.sony.nfx.largescreen.*
