@@ -21,7 +21,7 @@
 		   classname="org.apache.catalina.ant.DeployTask" 
 		   classpathref="catalina-ant-classpath"/>
 
-  <property name="tomcat.manager" value="http://localhost:8080/manager/text"/>
+  <property name="tomcat.manager" value="${ella.url}/manager/text"/>
 
   <target name="compile">
     <mkdir dir="classes"/>
@@ -31,6 +31,7 @@
 		<pathelement location="${tomcat.dir}/lib/servlet-api.jar"/>
 		<pathelement location="${tomcat.dir}/lib/catalina.jar"/>
 		<pathelement location="${tomcat.dir}/lib/tomcat-coyote.jar"/>
+		<pathelement location="libs/commons-lang3-3.1.jar"/>
       </classpath>
     </javac>
   </target>
@@ -50,7 +51,7 @@
   <target name="war" depends="compile,-create-web.xml">
 	<war destfile="${warname}" webxml="web.xml">
 	  <fileset dir="WebContent"/>
-	  <!--lib dir="lib"/-->
+	  <lib dir="libs"/>
 	  <classes dir="classes"/>
 	</war>
   </target>

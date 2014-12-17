@@ -11,5 +11,8 @@ tomcat.dir=/home/saswat/ellarepo/tomcat
 tomcat.username=xxx
 tomcat.password=xxx
 
+#server running ella webapp
+ella.url=http://example.com:8080
+
 #where ella stores coverage data and other stuff
 ella.outdir=/home/saswat/ellaoutdir
