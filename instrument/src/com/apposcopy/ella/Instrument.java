@@ -2,6 +2,7 @@ package com.apposcopy.ella;
 
 import java.util.*;
 import java.util.jar.*;
+import java.util.regex.Pattern;
 import java.io.*;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -39,63 +40,51 @@ public class Instrument
 		
 		probeMethRef = findProbeMethRef(dexFile);
  
+		Pattern excludePattern = readExcludePatterns();
+
         final List<ClassDef> classes = Lists.newArrayList();
  
         for (ClassDef classDef: dexFile.getClasses()) {
             List<Method> methods = Lists.newArrayList(); 
             boolean modifiedMethod = false;
-			String className = classDef.getType();
-			if(!className.startsWith("Lcom/apposcopy/ella/runtime/")){  
-				System.out.println("processing class *"+classDef.getType());
-				for (Method method: classDef.getMethods()) {
+			String className = Util.dottedClassName(classDef.getType());
+			if(!className.startsWith("com.apposcopy.ella.runtime")){ 
+				if(excludePattern == null || !excludePattern.matcher(className).matches()){
+					System.out.println("Instrumenting class *"+className);
+					for (Method method: classDef.getMethods()) {
+						String name = method.getName();
+						System.out.println("processing method '"+method.getDefiningClass()+": "+method.getReturnType()+ " "+ method.getName() + " p: " +  method.getParameters() + "'");
 					
-					String name = method.getName();
-					System.out.println("processing method '"+method.getDefiningClass()+": "+method.getReturnType()+ " "+ method.getName() + " p: " +  method.getParameters() + "'");
-					
-					MethodImplementation implementation = method.getImplementation();
-					if (implementation != null) {
-						MethodTransformer tr = new MethodTransformer(method);
-						MethodImplementation newImplementation = null;
-						//if(!method.getName().equals("<init>"))
-						newImplementation = tr.transform();
-						
-						if(newImplementation != null){
-							modifiedMethod = true;
-							methods.add(new ImmutableMethod(
-															method.getDefiningClass(),
-															method.getName(),
-															method.getParameters(),
-															method.getReturnType(),
-															method.getAccessFlags(),
-															method.getAnnotations(),
-															newImplementation));
-						} else 
+						MethodImplementation implementation = method.getImplementation();
+						if (implementation != null) {
+							MethodTransformer tr = new MethodTransformer(method);
+							MethodImplementation newImplementation = null;
+							//if(!method.getName().equals("<init>"))
+							newImplementation = tr.transform();
+							
+							if(newImplementation != null){
+								modifiedMethod = true;
+								methods.add(new ImmutableMethod(
+																method.getDefiningClass(),
+																method.getName(),
+																method.getParameters(),
+																method.getReturnType(),
+																method.getAccessFlags(),
+																method.getAnnotations(),
+																newImplementation));
+							} else 
+								methods.add(method);
+						} else
 							methods.add(method);
-					} else
-						methods.add(method);
-				}
-			} else if(className.equals("Lcom/apposcopy/ella/runtime/Ella;")){
+					}
+				} else
+					System.out.println("Skipping instrumentation of class "+className);
+			} else if(className.equals("com.apposcopy.ella.runtime.Ella")){
 				modifiedMethod = true;
 				for (Method method: classDef.getMethods()) {
 					String name = method.getName();
 					if(name.equals("<clinit>")){
-						MethodImplementation code = method.getImplementation();
-						int regCount = code.getRegisterCount();
-						
-						//get the reference to the "private static String id" field
-						Field idField = null;
-						for(Field f : classDef.getStaticFields()){
-							if(f.getName().equals("id")){
-								idField = f;
-								break;
-							}
-						}
-
-						MutableMethodImplementation newCode = new MutableMethodImplementation(code, regCount+1);
-						newCode.addInstruction(0, new BuilderInstruction21c(Opcode.SPUT_OBJECT, regCount, idField));
-
-						newCode.addInstruction(0, new BuilderInstruction21c(Opcode.CONST_STRING, regCount, new ImmutableStringReference(Config.g().appId)));
-						
+						MutableMethodImplementation newCode = injectId(method.getImplementation(), classDef);
 						methods.add(new ImmutableMethod(
 														method.getDefiningClass(),
 														method.getName(),
@@ -142,6 +131,31 @@ public class Instrument
 			});
 		return outputFile;
 	}
+
+	static Pattern readExcludePatterns() throws IOException
+	{
+		String fileName = Config.g().excludeFile;
+		if(fileName == null)
+			return null;
+		File f = new File(fileName);
+		if(!f.exists()){
+			System.out.println("Exclusion file "+fileName+" does not exist.");
+			return null;
+		}
+		BufferedReader reader = new BufferedReader(new FileReader(f));
+		String line;
+		StringBuilder builder = new StringBuilder();
+		boolean first = true;
+		while((line = reader.readLine()) != null){
+			if(first)
+				first = false;
+			else
+				builder.append("|");
+			builder.append(line);
+		}
+		reader.close();
+		return Pattern.compile(builder.toString());
+	}
 	
 	static MethodReference findProbeMethRef(DexFile dexFile)
 	{
@@ -155,6 +169,25 @@ public class Instrument
 			}
 		}
 		return null;	
+	}
+
+	static MutableMethodImplementation injectId(MethodImplementation code, ClassDef classDef)
+	{
+		int regCount = code.getRegisterCount();
+		
+		//get the reference to the "private static String id" field
+		Field idField = null;
+		for(Field f : classDef.getStaticFields()){
+			if(f.getName().equals("id")){
+				idField = f;
+				break;
+			}
+		}
+		
+		MutableMethodImplementation newCode = new MutableMethodImplementation(code, regCount+1);
+		newCode.addInstruction(0, new BuilderInstruction21c(Opcode.SPUT_OBJECT, regCount, idField));
+		newCode.addInstruction(0, new BuilderInstruction21c(Opcode.CONST_STRING, regCount, new ImmutableStringReference(Config.g().appId)));
+		return newCode;
 	}
 
 	static File mergeEllaRuntime(String inputFile) throws IOException
