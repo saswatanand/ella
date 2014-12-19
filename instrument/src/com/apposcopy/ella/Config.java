@@ -14,6 +14,10 @@ public class Config
 	public String outputFile;
 	public String ellaOutDir;
 	public String appId;
+	public String keyStore;
+	public String storePass;
+	public String keyPass;
+	public String alias;
 
 	private static Config g;
 
@@ -31,8 +35,13 @@ public class Config
 		Properties props = new Properties();
 		props.load(new FileInputStream(ellaSettingsFile));
 
-		dxJar = props.getProperty("dx.jar");
-		ellaOutDir = props.getProperty("ella.outdir");
+		dxJar = props.getProperty("dx.jar").trim();
+		ellaOutDir = props.getProperty("ella.outdir").trim();
+		
+		keyStore = props.getProperty("jarsigner.keystore").trim();
+		storePass = props.getProperty("jarsigner.storepass").trim();
+		keyPass = props.getProperty("jarsigner.keypass").trim();
+		alias = props.getProperty("jarsigner.alias").trim();
 	}
 
 	String outDir()

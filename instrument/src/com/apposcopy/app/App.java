@@ -72,6 +72,37 @@ public class App
 		return inputDexFile.getAbsolutePath();
 	}
 
+	public static void signAndAlignApk(File unsignedApk, String signedApkPath, String keyStore, String storePass, String keyPass, String alias)
+	{
+		String[] argsSign = {"jarsigner", 
+							 "-keystore", keyStore,
+							 "-storepass", storePass,
+							 "-keypass", keyPass,
+							 unsignedApk.getAbsolutePath(),
+							 alias};						 
+		try{
+			for(String s : argsSign) System.out.print(" "+s);
+			int exitCode = Runtime.getRuntime().exec(argsSign).waitFor();
+			if(exitCode != 0)
+				throw new Error("Error in running jarsigner "+exitCode);
+		}catch(Exception e){
+			throw new Error("Error in running jarsigner", e);
+		}
+		
+		String[] argsAlign = {"zipalign", 
+							  "-f", "4",
+							  unsignedApk.getAbsolutePath(),
+							  signedApkPath};
+		try{
+			for(String s : argsAlign) System.out.print(" "+s);
+			int exitCode = Runtime.getRuntime().exec(argsAlign).waitFor();
+			if(exitCode != 0)
+				throw new Error("Error in running zipalign");
+		}catch(Exception e){
+			throw new Error("Error in running zipalign", e);
+		}
+	}
+
 	private String runApktool(String scratchDir, String apktoolJar)
 	{
 		String apktoolOutDir = scratchDir+File.separator+"apktool-out";
@@ -144,15 +175,15 @@ public class App
 		return dexFilePath;
 	}
 
-	public void updateDexFile(String newDexFilePath, String outputFile) throws IOException
+	public void updateDexFile(String newDexFilePath, File outputFile) throws IOException
 	{
 		if(!inputFile.endsWith(".apk")){
-			assert inputFile.endsWith(".dex") && outputFile.endsWith(".dex");
-			Files.copy(new File(newDexFilePath), new File(outputFile));
+			assert inputFile.endsWith(".dex") && outputFile.getName().endsWith(".dex");
+			Files.copy(new File(newDexFilePath), outputFile);
 			return;
 		}
 		
-		assert outputFile.endsWith(".apk");
+		assert outputFile.getName().endsWith(".apk");
 		//stick the new dex file into the output apk
 		ZipInputStream zin = new ZipInputStream(new BufferedInputStream(new FileInputStream(inputFile)));
 		ZipOutputStream zout = new ZipOutputStream(new FileOutputStream(outputFile));

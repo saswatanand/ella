@@ -113,7 +113,7 @@ public class Instrument
             }
         }
 
-		File outputDexFile = File.createTempFile("outputclasses", ".dex");
+		File outputDexFile = File.createTempFile("ellaoutputclasses", ".dex");
 		String outputFile = outputDexFile.getAbsolutePath();
  
         DexFileFactory.writeDexFile(outputFile, new DexFile() {

@@ -60,9 +60,17 @@ public class Main
 			return;
 		}
 
-		app.updateDexFile(Instrument.instrument(app.dexFilePath()), config.outputFile);
+		if(config.outputFile == null){
+			config.outputFile = config.outDir()+File.separator+"instrumented.apk";
+		}
+
+		File unsignedOutputFile = File.createTempFile("ellainstrumented", ".apk");
+		app.updateDexFile(Instrument.instrument(app.dexFilePath()), unsignedOutputFile);
+
+		//sign the apk
+		if(config.outputFile.endsWith(".apk"))
+			app.signAndAlignApk(unsignedOutputFile, config.outputFile, config.keyStore, config.storePass, config.keyPass, config.alias);
 
 		CoverageId.g().dump();
 	}
-
 }
