@@ -1,10 +1,24 @@
-#set these paths
+####################################################
+# settings required for instrumentation of dex code
+####################################################
 
-#TODO: remove the need to set "dx" in addition to "dx.jar"
-dx.jar=/opt/android-sdk-linux/build-tools/19.1.0/lib/dx.jar
 dx=/opt/android-sdk-linux/build-tools/19.0.0/dx
-
 android.jar=/opt/android-sdk-linux/platforms/android-19/android.jar
+
+#where ella stores coverage data and other stuff
+#OPTIONAL
+ella.outdir=/home/saswat/ellaoutdir
+
+#jarsigner
+#TODO: make these OPTIONAL. Use debug keystore
+jarsigner.keystore=/home/saswat/.android/debug.keystore
+jarsigner.storepass=android
+jarsigner.keypass=android
+jarsigner.alias=androiddebugkey
+
+######################################################
+# settings required for execution of instrumented app
+######################################################
 
 #tomcat settings
 tomcat.dir=/home/saswat/ellarepo/tomcat
@@ -13,6 +27,3 @@ tomcat.password=xxx
 
 #server running ella webapp
 ella.url=http://example.com:8080
-
-#where ella stores coverage data and other stuff
-ella.outdir=/home/saswat/ellaoutdir

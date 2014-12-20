@@ -35,8 +35,23 @@ public class Config
 		Properties props = new Properties();
 		props.load(new FileInputStream(ellaSettingsFile));
 
-		dxJar = props.getProperty("dx.jar").trim();
-		ellaOutDir = props.getProperty("ella.outdir").trim();
+		dxJar = props.getProperty("dx.jar");
+		if(dxJar == null){
+			String dxPath = props.getProperty("dx");
+			String btPath;
+			if(dxPath == null){
+				btPath = findAndroidBuildToolsPath();
+			}else{
+				dxPath = dxPath.trim();
+				assert dxPath.substring(dxPath.length()-2).equals("dx");
+				btPath = dxPath.substring(0, dxPath.length()-2);
+			}
+			dxJar = btPath + File.separator + "lib" + File.separator + "dx.jar";
+			System.out.println("dxJar = "+dxJar);
+		}
+		dxJar = dxJar.trim();
+
+		ellaOutDir = props.getProperty("ella.outdir", ellaDir+File.separator+"ella-out").trim();
 		
 		keyStore = props.getProperty("jarsigner.keystore").trim();
 		storePass = props.getProperty("jarsigner.storepass").trim();
@@ -49,5 +64,22 @@ public class Config
 		String outDir = ellaOutDir + File.separator + appId;
 		new File(outDir).mkdirs();
 		return outDir;
+	}
+
+	public static String findAndroidBuildToolsPath() {
+		String rtn = null;
+		String[] sCmdExts = {""}; //TODO: support windows?
+		StringTokenizer st = new StringTokenizer(System.getenv("PATH"), File.pathSeparator);
+		String path, sFile;
+		while (st.hasMoreTokens()) {
+			path = st.nextToken();
+			for (String sExt : sCmdExts) {
+				sFile = path + File.separator + "dx" + sExt;
+				if (new File(sFile).isFile()) {
+					return path;
+				}
+			}
+		}
+		return null;
 	}
 }

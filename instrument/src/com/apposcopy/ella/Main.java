@@ -9,6 +9,7 @@ public class Main
 	public static void main(String[] args) throws IOException
 	{
 		boolean listClasses = false;
+		String ellaSettingsFile = null;
 		Config config = Config.g();
 
 		int i = 0;
@@ -26,7 +27,7 @@ public class Main
 				config.ellaRuntime = args[i+1];
 				i++;
 			} else if(a.equals("-ella.settings")){
-				config.load(args[i+1]);
+				ellaSettingsFile = args[i+1];
 				i++;
 			} else if(a.equals("-ella.apktool")){
 				config.apktoolJar = args[i+1];
@@ -39,6 +40,8 @@ public class Main
 			}
 			i++;
 		}
+
+		config.load(ellaSettingsFile);
 
 		if(config.inputFile == null){
 			System.out.println("New input file to process");
