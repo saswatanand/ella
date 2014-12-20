@@ -43,7 +43,7 @@ This would produce the instrumented apk named `instrumented.apk` inside a subdir
 
 ## Collecting coverage
 1. Install the `instrumented.apk` on the emulator or device using `adb` as follows. You may have to uninstall it first if the app is already installed.
-2. Copy the `ella_record_coverage` file to emulator/device's sdcard as follows.
+2. Copy the `ella_record_coverage` file to emulator/device's sdcard as follows. `ella_record_coverage` is intentionally an empty file. It is used to signal when to stop recording coverage data. See below.
 ```
 adb push ella_record_coverage /sdcard/ella_record_coverage
 ```

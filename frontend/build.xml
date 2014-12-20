@@ -21,7 +21,7 @@
 		   classname="org.apache.catalina.ant.DeployTask" 
 		   classpathref="catalina-ant-classpath"/>
 
-  <property name="tomcat.manager" value="${ella.url}/manager/text"/>
+  <property name="tomcat.manager" value="${tomcat.url}/manager/text"/>
 
   <target name="compile">
     <mkdir dir="classes"/>
@@ -64,7 +64,7 @@
 		<http url="http://localhost:8080"/>
 	</waitfor>
     <echo>Starting Tomcat server</echo>
-    <catalina-deploy username="${tomcat.username}"
+    <catalina-deploy username="${tomcat.manager}"
 					 password="${tomcat.password}"
 					 url="${tomcat.manager}"
 					 path="/ella"

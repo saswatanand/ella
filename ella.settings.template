@@ -27,8 +27,8 @@ jarsigner.alias=androiddebugkey
 
 #tomcat settings
 tomcat.dir=/home/saswat/ellarepo/tomcat
-tomcat.username=xxx
+tomcat.manager=xxx
 tomcat.password=xxx
 
-#server running ella webapp
-ella.url=http://example.com:8080
+#ROOT URL
+tomcat.url=http://example.com:8080
