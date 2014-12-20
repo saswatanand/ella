@@ -19,10 +19,11 @@ through webapps)
 ## Setting up Ella
 1. Rename `ella.settings.template` file to `ella.settings`.
 2. Make following two changes in `ella.settings`. 
-  1. Change the value of `android.jar` to the path to android.jar file of the appropriate
+  1. Change the value of `android.jar` to the path to `android.jar` file of the appropriate
 android SDK version. For example, if you will execute the instrumented app in an emulator
 with target API level 19, then use the path to `platforms/android-19/android.jar` inside the android SDK directory.
   2. Set the `jarsigner.*` variables to appropriate values. [jarsigner](http://docs.oracle.com/javase/6/docs/technotes/tools/windows/jarsigner.html) tool is used to sign instrumented apk's.
+  3. Set value of `tomcat.*` variables. `tomcat.manager` should be set to the username of a tomcat user who `manager-script` role (i.e., can deploy webapps on the server). `tomcat.password` should be set to that user's password. `tomcat.dir` is the installation directory of tomcat. Tomcat username and passwords are listed in the file name `tomcat-users.xml` inside Tomcat's installation directory.
 3. Before executing any ella-instrumented apps, push `ella_url.txt` to emulator/device's sdcard as follows. `ella_url.txt` file is generated when ella is built.
 ```
 adb push ella_url.txt /sdcard/ella_url.txt
@@ -43,7 +44,7 @@ This would produce the instrumented apk named `instrumented.apk` inside a subdir
 adb push ella_record_coverage /sdcard/ella_record_coverage
 ```
 3. Execute the instrumented app. 
-4. To stop recording coverage data and upload the data to ella webapp, delete the `/sdcard/ella_record_coverage' file as follows.
+4. To stop recording coverage data and upload the data to ella webapp, delete the `/sdcard/ella_record_coverage` file as follows.
 ```
 adb shell rm /sdcard/ella_record_coverage
 ```
