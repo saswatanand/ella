@@ -27,8 +27,7 @@ Execute the following command
 ella.sh <path-to-apk>
 ```
 
-This would produce the instrumented apk named `instrumented.apk` inside a subdirectory inside `ella-out` directory.
-The name of the subdirectory is derived from `<path-to-apk>`.
+This would produce the instrumented apk named `instrumented.apk` inside a subdirectory inside `<ella-home>/ella-out` directory, where `<ella-home>` represents the installation directory of ella. The name of the subdirectory is derived from `<path-to-apk>`, .
 
 ## Collecting coverage
 Install the `instrumented.apk` on the emulator or device using `adb` as follows.
