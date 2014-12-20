@@ -8,6 +8,8 @@
   <property name="jarname" value="${ella.dir}/bin/ella.runtime.jar"/>
   <property name="dexname" value="${ella.dir}/bin/ella.runtime.dex"/>
 
+  <property name="dx" value="dx"/>
+
   <target name="init">
     <!-- Create the time stamp -->
     <tstamp/>
