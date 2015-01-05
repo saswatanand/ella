@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="ella" default="build">
-
   <dirname property="ella.dir" file="${ant.file}"/>
+  <property file="${ella.dir}/ella.settings"/>
 
   <target name="init">
+	<echo file="${ella.dir}/ella_url.txt">${tomcat.url}/ella/uploadcoverage
+</echo>
   </target>
 
   <target name="build" depends="init">
