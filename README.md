@@ -49,9 +49,10 @@ ant -f frontend/build.xml deploy
 ## Collecting coverage
 1. Install the `instrumented.apk` on the emulator or device. You may have to uninstall it first if the app is already installed.
 2. Before executing the instrumented app, execute the following command on the PC connected to the device/emulator. `b` stands for "begin" as in begin recording coverage data.
-```
-ella.r.sh b
-```
+
+        ```
+        ella.r.sh b
+        ```
 3. Execute the instrumented app. 
 4. To end recording coverage data and upload the data to ella webapp, execute the following command on the PC connected to the device/emulator. `e` stands for "end" in end recording coverage data.
 ```
