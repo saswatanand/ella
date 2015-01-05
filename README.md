@@ -30,7 +30,8 @@ Before executing ella-instrumented apps, do the following:
 1. Push `ella_url.txt` to emulator/device's (which will execute instrumented apps) sdcard as follows. `ella_url.txt` file is auto-generated inside ella's installation directory when ella is built.
 ```
 adb push ella_url.txt /sdcard/ella_url.txt
-```2. Deploy ella webapp by issuing the following command in ella's installation directory.
+```
+2. Deploy ella webapp by issuing the following command in ella's installation directory.
 ```
 ant -f frontend/build.xml deploy
 ```
@@ -48,7 +49,8 @@ This would produce the instrumented apk named `instrumented.apk` inside a subdir
 2. Copy the `ella_record_coverage` file to emulator/device's sdcard as follows. `ella_record_coverage` is intentionally an empty file. It is used to signal when to stop recording coverage data. See below.
 ```
 adb push ella_record_coverage /sdcard/ella_record_coverage
-```3. Execute the instrumented app. 
+```
+3. Execute the instrumented app. 
 4. To stop recording coverage data and upload the data to ella webapp, delete the `/sdcard/ella_record_coverage` file as follows.
 ```
 adb shell rm /sdcard/ella_record_coverage
