@@ -54,8 +54,12 @@ ant -f frontend/build.xml deploy
 
 3. Execute the instrumented app. 
 4. To end recording coverage data and upload the data to ella webapp, execute the following command on the PC connected to the device/emulator. `e` stands for "end" in end recording coverage data.
-```
-ella.r.sh e
-```
+
+        ella.r.sh e
+
 
 ## Viewing coverage report
+
+The coverage data are stored inside a subdirectory of `<ella-home>/ella-out` directory, where `<ella-home>` represents the installation directory of ella. The name of the subdirectory is derived from `<path-to-apk>`. Currently, coverage data are stored in files `coverage.dat` and `covids`. `covids` contain the list of method signatures; index of a method is its identifier. `coverage.dat` contains the list of method identifiers that were executed.
+
+There is a servlet that shows the set of covered method. TODO: explain.
