@@ -54,7 +54,8 @@ public class Main
 			return;
 		}
 
-		config.appId = inputFile.getCanonicalPath().replace(File.separatorChar, '_');
+		String appPath = inputFile.getCanonicalPath();
+		config.appId = appPath.replace(File.separatorChar, '_');
 
 		App app = App.readApp(config.inputFile, config.outDir(), config.apktoolJar);
 
@@ -75,5 +76,10 @@ public class Main
 			app.signAndAlignApk(unsignedOutputFile, config.outputFile, config.keyStore, config.storePass, config.keyPass, config.alias);
 
 		CoverageId.g().dump();
+		
+		System.out.println("\n********************************************************************************");
+		System.out.println("After coverage data is collected, view the coverage report at the following URL.");
+		System.out.println(config.tomcatUrl+"/viewcoverage?apppath="+appPath);
+		System.out.println("********************************************************************************\n");
 	}
 }

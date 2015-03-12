@@ -81,7 +81,7 @@ public class App
 							 unsignedApk.getAbsolutePath(),
 							 alias};						 
 		try{
-			for(String s : argsSign) System.out.print(" "+s);
+			for(String s : argsSign) System.out.print(" "+s); System.out.println("");
 			int exitCode = Runtime.getRuntime().exec(argsSign).waitFor();
 			if(exitCode != 0)
 				throw new Error("Error in running jarsigner "+exitCode);
@@ -94,7 +94,7 @@ public class App
 							  unsignedApk.getAbsolutePath(),
 							  signedApkPath};
 		try{
-			for(String s : argsAlign) System.out.print(" "+s);
+			for(String s : argsAlign) System.out.print(" "+s); System.out.println("");
 			int exitCode = Runtime.getRuntime().exec(argsAlign).waitFor();
 			if(exitCode != 0)
 				throw new Error("Error in running zipalign");
@@ -161,7 +161,7 @@ public class App
 
 		filterDead(compNames);
 
-		System.out.println("^^ "+compNames.size());
+		//System.out.println("^^ "+compNames.size());
 		
 		for(Component c : comps){
 			if(compNames.contains(c.name))

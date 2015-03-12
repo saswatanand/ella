@@ -6,6 +6,9 @@ org.apache.http.*
 org.codehaus.jackson.*
 com.google.android.apps.*
 com.google.ads.*
+com.google.analytics.*
+com.google.android.gms.*
+com.google.tagmanager.*
 com.mercuryintermedia.*
 com.nineoldandroids.*
 com.pushio.*

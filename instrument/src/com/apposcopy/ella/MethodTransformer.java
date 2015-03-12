@@ -42,7 +42,7 @@ public class MethodTransformer
         numParameterRegisters = MethodUtil.getParameterRegisterCount(method);
 		numNonParameterRegisters = numRegisters - numParameterRegisters;
 
-		System.out.println("numRegisters = "+numRegisters+" numParameterRegisters = "+ numParameterRegisters);
+		//System.out.println("numRegisters = "+numRegisters+" numParameterRegisters = "+ numParameterRegisters);
 
 		//for (Instruction instruction : code.getInstructions()) {
 		//	visit(instruction);

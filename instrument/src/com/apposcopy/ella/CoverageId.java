@@ -20,7 +20,7 @@ public class CoverageId
 	public int idFor(String methodSig)
 	{
 		int id = meths.size();
-		System.out.println(id + " " + methodSig);
+		//System.out.println(id + " " + methodSig);
 		meths.add(methodSig);
 		return id;
 	}

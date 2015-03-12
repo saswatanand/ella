@@ -14,6 +14,7 @@ public class Config
 	public String outputFile;
 	public String ellaOutDir;
 	public String appId;
+	public String tomcatUrl;
 	public String keyStore;
 	public String storePass;
 	public String keyPass;
@@ -57,6 +58,8 @@ public class Config
 		storePass = props.getProperty("jarsigner.storepass").trim();
 		keyPass = props.getProperty("jarsigner.keypass").trim();
 		alias = props.getProperty("jarsigner.alias").trim();
+		
+		tomcatUrl = props.getProperty("tomcat.url").trim();
 	}
 
 	String outDir()

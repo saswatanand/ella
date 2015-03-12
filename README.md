@@ -2,7 +2,9 @@ ELLA: A Code Coverage Tool for Android APK's
 ====
 
 ELLA is a tool to instrument Android APK's to collect
-coverage. Several tools exist that can instrument APK's to some
+coverage. Currently, ella can measure method coverage.
+
+Several tools exist that can instrument APK's to some
 degree. But they usually do not work very reliably because they
 translate Dalvik bytecodes to another form such as Java bytecode or
 internal representations of other tools, and this translation is quite
@@ -14,17 +16,20 @@ of the [Smali](https://github.com/JesusFreke/smali) project).
 1. Android SDK
 2. Java SDK
 3. Ant
-4. Apache Tomcat (Ella collects coverage data from the instrumented app and shows coverae report
-through webapps)
+4. Apache Tomcat (Ella collects coverage data from the instrumented app and shows coverage report
+through webapps). Download appropriate binary distribution from [Tomcat website](http://tomcat.apache.org/download-70.cgi).
 
 ## Before building ella
 1. Rename `ella.settings.template` file to `ella.settings`, which must set various environment variables.
 2. Make following three changes in `ella.settings`. 
-  1. Change the value of `android.jar` to the path to `android.jar` file of the appropriate
+  1. Set `android.jar` to the path to `android.jar` file of the appropriate
 android SDK version. For example, if you will execute the instrumented app in an emulator
 with target API level 19, then use the path to `platforms/android-19/android.jar` inside the android SDK directory.
-  2. Set the `jarsigner.*` variables to appropriate values. [jarsigner](http://docs.oracle.com/javase/6/docs/technotes/tools/windows/jarsigner.html) tool is used to sign instrumented apk's.
-  3. Set value of `tomcat.*` variables. `tomcat.manager` should be set to the username of a tomcat user who has `manager-script` role (i.e., can deploy webapps on the server). `tomcat.password` should be set to that user's password. `tomcat.dir` is the installation directory of tomcat. Tomcat username and passwords are listed in the file name `tomcat-users.xml` inside Tomcat's installation directory. `tomcat.url` should be set to the ROOT URL of web server.
+  2. Set `jarsigner.*` variables to appropriate values. [jarsigner](http://docs.oracle.com/javase/6/docs/technotes/tools/windows/jarsigner.html) tool is used to sign instrumented apk's.
+  3. Set `tomcat.manager` to the username of a tomcat user who has `manager-script` role (i.e., can deploy webapps on the server). 
+  4. Set `tomcat.password` to the above user's password. 
+  5. Set `tomcat.dir` to installation directory of tomcat. Tomcat username and passwords are listed in the file name `tomcat-users.xml` inside Tomcat's installation directory. 
+  4. `tomcat.url` should be set to the ROOT URL of web server. Dont use `http://localhost:8080`; Instead, use the IP address. This URL is used by the instrumented app, which is *not* running locally, but on the instrumentor/phone.
 
 ## Build ella
 Execute the following command inside ella's installation directory.
@@ -62,4 +67,8 @@ ant -f frontend/build.xml deploy
 
 The coverage data are stored inside a subdirectory of `<ella-home>/ella-out` directory, where `<ella-home>` represents the installation directory of ella. The name of the subdirectory is derived from `<path-to-apk>`. Currently, coverage data are stored in files `coverage.dat` and `covids`. `covids` contain the list of method signatures; index of a method is its identifier. `coverage.dat` contains the list of method identifiers that were executed.
 
-There is a servlet that shows the set of covered method. TODO: explain.
+There is a servlet that shows the set of covered method. At the end of the instrumentation step, ella prints out the URL to open to see the report.
+
+## Trouble-shooting
+
+If the instrumented app appears to fail uploading the coverage data, check output of `adb logcat`. One likely cause is that the `tomcat.url` URL is not accessible from the emulator/phone.

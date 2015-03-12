@@ -50,10 +50,10 @@ public class Instrument
 			String className = Util.dottedClassName(classDef.getType());
 			if(!className.startsWith("com.apposcopy.ella.runtime")){ 
 				if(excludePattern == null || !excludePattern.matcher(className).matches()){
-					System.out.println("Instrumenting class *"+className);
+					System.out.println("Instrumenting class "+className);
 					for (Method method: classDef.getMethods()) {
 						String name = method.getName();
-						System.out.println("processing method '"+method.getDefiningClass()+": "+method.getReturnType()+ " "+ method.getName() + " p: " +  method.getParameters() + "'");
+						//System.out.println("processing method '"+method.getDefiningClass()+": "+method.getReturnType()+ " "+ method.getName() + " p: " +  method.getParameters() + "'");
 					
 						MethodImplementation implementation = method.getImplementation();
 						if (implementation != null) {
