@@ -24,6 +24,7 @@
          inheritAll="false" useNativeBasedir="true"/>
     <ant antfile="${ella.dir}/frontend/build.xml" target="clean"
          inheritAll="false" useNativeBasedir="true"/>
+	<delete file="${ella.dir}/ella_url.txt"/>
   </target>
 
 </project>

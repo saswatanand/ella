@@ -31,4 +31,7 @@ tomcat.manager=xxx
 tomcat.password=xxx
 
 #ROOT URL
-tomcat.url=http://example.com:8080
+#Dont use http://localhost:8080. Instead use the IP address
+#because this URL is used by the instrumented app, which is *not*
+#running locally, but on the instrumentor/phone
+tomcat.url=http://123.45.67.89:8080
