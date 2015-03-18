@@ -13,3 +13,4 @@ com.mercuryintermedia.*
 com.nineoldandroids.*
 com.pushio.*
 com.sony.nfx.largescreen.*
+com.facebook.*

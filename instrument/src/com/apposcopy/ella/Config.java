@@ -19,6 +19,7 @@ public class Config
 	public String storePass;
 	public String keyPass;
 	public String alias;
+	public String recorderClassName;
 
 	private static Config g;
 
@@ -60,6 +61,8 @@ public class Config
 		alias = props.getProperty("jarsigner.alias").trim();
 		
 		tomcatUrl = props.getProperty("tomcat.url").trim();
+		
+		recorderClassName = props.getProperty("ella.recorder").trim();
 	}
 
 	String outDir()

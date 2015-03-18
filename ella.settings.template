@@ -35,3 +35,5 @@ tomcat.password=xxx
 #because this URL is used by the instrumented app, which is *not*
 #running locally, but on the instrumentor/phone
 tomcat.url=http://123.45.67.89:8080
+
+ella.recorder=com.apposcopy.ella.runtime.MethodCoverageRecorder

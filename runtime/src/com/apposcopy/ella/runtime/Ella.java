@@ -16,17 +16,26 @@ public class Ella
 	private static final String RECORD_COVERAGE_FILE = "/sdcard/ella_record_coverage";
 	private static final String URL_FILE = "/sdcard/ella_url.txt";
 	private static String id; //instrumentation will set the value
-
-	public static final BitSet coverage = new BitSet();
+	private static String covRecorderClassName;
+	private static CoverageRecorder covRecorder;
 
 	static {
+		try{
+			covRecorder = (CoverageRecorder) Class.forName(covRecorderClassName).newInstance();
+		} catch(ClassNotFoundException e){
+			throw new Error(e);
+		} catch(InstantiationException e){
+			throw new Error(e);
+		} catch(IllegalAccessException e){
+			throw new Error(e);
+		} 
 		new ShutDownHook().start();
 	}
 
 	public static void m(int mId)
 	{
 		//System.out.println("Covered "+mId);
-		coverage.set(mId);
+		covRecorder.m(mId);
 	}
 
 	private static void dumpCoverage(String url) throws IOException
@@ -45,7 +54,7 @@ public class Ella
 
 		List<NameValuePair> nameValuePairs = new ArrayList();
 		nameValuePairs.add(new BasicNameValuePair("id", id));
-		nameValuePairs.add(new BasicNameValuePair("cov", coverage.toString()));
+		nameValuePairs.add(new BasicNameValuePair("cov", covRecorder.data()));
 
 		post.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 		HttpResponse response = client.execute(post);
