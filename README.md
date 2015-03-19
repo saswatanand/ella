@@ -13,7 +13,7 @@ bytecode level. It does so by using the great DexLib2 library (a part
 of the [Smali](https://github.com/JesusFreke/smali) project).
 
 ## Pre-requisite
-1. Unix-like operating system
+1. Unix-like operating system. Minor tweaks to scripts and build files may be needed to run ella on Windows.
 2. Android SDK
 3. Java SDK
 4. Ant
@@ -21,14 +21,17 @@ of the [Smali](https://github.com/JesusFreke/smali) project).
 through webapps). Download appropriate binary distribution from [Tomcat website](http://tomcat.apache.org/download-70.cgi).
 
 ## Before building ella
-1. Rename `ella.settings.template` file to `ella.settings`, which must set various environment variables.
-2. Make following three changes in `ella.settings`. 
+1. Rename `ella.settings.template` file to `ella.settings`.
+2. Make following changes in `ella.settings`. 
   1. Set `android.jar` to the path to `android.jar` file of the appropriate
 android SDK version. For example, if you will execute the instrumented app in an emulator
 with target API level 19, then use the path to `platforms/android-19/android.jar` inside the android SDK directory.
   2. Set `jarsigner.*` variables to appropriate values. [jarsigner](http://docs.oracle.com/javase/6/docs/technotes/tools/windows/jarsigner.html) tool is used to sign instrumented apk's.
-  3. Set `tomcat.manager` to the username of a tomcat user who has `manager-script` role (i.e., can deploy webapps on the server). 
-  4. Set `tomcat.password` to the above user's password. Tomcat username and passwords are listed in the file name `tomcat-users.xml` inside Tomcat's installation directory. 
+  3. Set `tomcat.manager` to the username of a tomcat user who has `manager-script` role (i.e., can deploy webapps on the server). Tomcat username and passwords are listed in the file name `conf/tomcat-users.xml` inside Tomcat's installation directory.  For example, you must have a line similar to the following in your `conf/tomcat-users.xml`.
+```
+<user username="ella-tomcat-manager" password="XXXX" roles="manager-script"/>
+```
+  4. Set `tomcat.password` to the above user's password. 
   5. Set `tomcat.dir` to installation directory of tomcat. 
   4. `tomcat.url` should be set to the ROOT URL of web server. Dont use `http://localhost:8080`; Instead, use the IP address. This URL is used by the instrumented app, which is *not* running locally, but on the instrumentor/phone.
 
