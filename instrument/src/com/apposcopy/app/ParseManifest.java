@@ -40,7 +40,12 @@ public class ParseManifest
 			Node node = (Node)
 				xpath.evaluate("/manifest", document, XPathConstants.NODE);
 			app.setPackageName(node.getAttributes().getNamedItem("package").getNodeValue());
-			app.setVersion(node.getAttributes().getNamedItem("android:versionName").getNodeValue());
+			Node versionNameAttribute = node.getAttributes().getNamedItem("android:versionName");
+			if(versionNameAttribute != null) {
+				app.setVersion(versionNameAttribute.getNodeValue());
+			} else {
+				app.setVersion("unknown");
+			}
 
 			//find icon path
 			node = (Node)

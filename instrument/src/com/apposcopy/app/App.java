@@ -110,8 +110,8 @@ public class App
 						 "-classpath", apktoolJar,
 						 "brut.apktool.Main",
 						 "d",  "-f", "--frame-path", scratchDir,
-						 "-s", inputFile,
-						 apktoolOutDir};
+						 "-o", apktoolOutDir,
+						 "-s", inputFile};
 						 
 		try{
 			int exitCode = Runtime.getRuntime().exec(args).waitFor();
