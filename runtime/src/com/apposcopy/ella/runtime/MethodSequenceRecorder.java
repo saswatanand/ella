@@ -32,7 +32,7 @@ public class MethodSequenceRecorder implements CoverageRecorder
 		int[] seq = sequence;
 		long[] ts = timeStamps;
 		for(int i = 0; i < index; i++)
-			builder.append(" "+ts[i]+" "+seq[i]);
+			builder.append(ts[i]+" "+seq[i]+"\n");
 		return builder.toString();
 	}
 }
