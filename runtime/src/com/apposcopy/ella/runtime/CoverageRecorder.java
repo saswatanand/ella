@@ -5,4 +5,6 @@ public interface CoverageRecorder
 	public void m(int mId);
 	
 	public String data();
+	
+	public boolean supportsContinuousReporting();
 }

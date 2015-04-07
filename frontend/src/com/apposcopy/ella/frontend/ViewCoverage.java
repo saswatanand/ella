@@ -11,6 +11,7 @@ import javax.servlet.http.Part;
 import static org.apache.commons.lang3.StringEscapeUtils.escapeHtml4;
 
 import java.io.*;
+import java.security.MessageDigest;
 import java.util.*;
 import java.util.logging.*;
 
@@ -41,7 +42,7 @@ public class ViewCoverage extends HttpServlet
 			return;
 		}
 
-		String appId = appFile.getCanonicalPath().replace(File.separatorChar, '_');
+		String appId = appPathToAppId(appFile.getCanonicalPath());
 
 		//System.out.println("pkg: "+pkg+" covData: "+covData+" ell.dir: "+ellaDir);
 
@@ -119,5 +120,32 @@ public class ViewCoverage extends HttpServlet
 
 		covReader.close();
 	}
+	
+	private static String sha256(String base) {
+		try{
+		    MessageDigest digest = MessageDigest.getInstance("SHA-256");
+		    byte[] hash = digest.digest(base.getBytes("UTF-8"));
+		    StringBuffer hexString = new StringBuffer();
+
+		    for (int i = 0; i < hash.length; i++) {
+		        String hex = Integer.toHexString(0xff & hash[i]);
+		        if(hex.length() == 1) hexString.append('0');
+		        hexString.append(hex);
+		    }
+
+		    return hexString.toString();
+		} catch(Exception ex){
+		   throw new RuntimeException(ex);
+		}
+    }
+    
+    private static String appPathToAppId(String appPath) {
+    	String appId = appPath.replace(File.separatorChar, '_');
+    	if(appId.length() > 100) {
+    		return sha256(appId);
+    	} else {
+    		return appId;
+    	}
+    }
 
 }

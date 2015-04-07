@@ -29,7 +29,7 @@ public class Ella
 		} catch(IllegalAccessException e){
 			throw new Error(e);
 		} 
-		new ShutDownHook().start();
+		new EllaMonitor().start();
 	}
 
 	public static void m(int mId)
@@ -37,8 +37,13 @@ public class Ella
 		//System.out.println("Covered "+mId);
 		covRecorder.m(mId);
 	}
-
+	
 	private static void dumpCoverage(String url) throws IOException
+	{
+		dumpCoverage(url, false);
+	}
+
+	private static void dumpCoverage(String url, boolean append) throws IOException
 	{
 		System.out.println("ELLA: About to upload coverage data to "+url);
 
@@ -55,6 +60,9 @@ public class Ella
 		List<NameValuePair> nameValuePairs = new ArrayList();
 		nameValuePairs.add(new BasicNameValuePair("id", id));
 		nameValuePairs.add(new BasicNameValuePair("cov", covRecorder.data()));
+		if(append) {
+			nameValuePairs.add(new BasicNameValuePair("append", "true"));
+		}
 
 		post.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 		HttpResponse response = client.execute(post);
@@ -62,29 +70,46 @@ public class Ella
 	}
 
 
-	private static class ShutDownHook extends Thread
+	private static class EllaMonitor extends Thread
 	{
-		ShutDownHook()
+		EllaMonitor()
 		{
 		}
 		
 		public void run()
 		{
+			String url = "";
+			boolean append = false;
+			try{
+				url = new BufferedReader(new FileReader(URL_FILE)).readLine();
+			}catch(IOException e){
+				throw new Error(e);
+			}
+		
 			//keep recording coverage as long as this file exists on the sd card
 			File file = new File(RECORD_COVERAGE_FILE);
 			while(file.exists()){
 				try{
 					sleep(500);
+					// If continuous coverage reporting is supported, 
+					// send an update to the server
+					if(covRecorder.supportsContinuousReporting()) {
+						try{
+							//dump coverage
+							dumpCoverage(url, append);
+						}catch(IOException e){
+							throw new Error(e);
+						}
+						if(!append) append = true; // Send requests other than the first with append=true.
+					}
 				}catch(InterruptedException e){
 					break;
 				}
 			}
 
-			String pkg = null;
 			try{
 				//dump coverage
-				String url = new BufferedReader(new FileReader(URL_FILE)).readLine();
-				dumpCoverage(url);
+				dumpCoverage(url, append);
 			}catch(IOException e){
 				throw new Error(e);
 			}

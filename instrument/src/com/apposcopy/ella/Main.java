@@ -55,7 +55,7 @@ public class Main
 		}
 
 		String appPath = inputFile.getCanonicalPath();
-		config.appId = appPath.replace(File.separatorChar, '_');
+		config.appId = Util.appPathToAppId(appPath);
 
 		App app = App.readApp(config.inputFile, config.outDir(), config.apktoolJar);
 

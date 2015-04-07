@@ -6,6 +6,7 @@ if [ "$1" == 'b' ]; then
   echo "" > $ELLA_DIR/ella_record_coverage
   adb push $ELLA_DIR/ella_record_coverage /sdcard/ella_record_coverage
   adb push $ELLA_DIR/ella_url.txt /sdcard/ella_url.txt
+  ant -f $ELLA_DIR/frontend/build.xml set-up-adb-port-forwarding
   exit
 fi
 

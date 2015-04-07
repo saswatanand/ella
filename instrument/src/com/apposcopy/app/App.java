@@ -115,9 +115,12 @@ public class App
 						 
 		try{
 			int exitCode = Runtime.getRuntime().exec(args).waitFor();
-			if(exitCode != 0)
+			if(exitCode != 0) {
+				System.err.println("java -Xmx1g -ea -classpath " + apktoolJar + " brut.apktool.Main d -f --frame-path " + scratchDir + " -o " + apktoolOutDir + " -s " + inputFile);
 				throw new Error("Error in running apktool");
+			}
 		}catch(Exception e){
+			System.err.println("java -Xmx1g -ea -classpath " + apktoolJar + " brut.apktool.Main d -f --frame-path " + scratchDir + " -o " + apktoolOutDir + " -s " + inputFile);
 			throw new Error("Error in running apktool");
 		}
 		return apktoolOutDir;

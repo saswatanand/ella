@@ -15,5 +15,9 @@ public class MethodCoverageRecorder implements CoverageRecorder
 	{
 		return coverage.toString();
 	}
+	
+	public boolean supportsContinuousReporting() {
+		return false;
+	}
 
 }

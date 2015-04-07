@@ -31,9 +31,13 @@ tomcat.manager=xxx
 tomcat.password=xxx
 
 #ROOT URL
-#Dont use http://localhost:8080. Instead use the IP address
+#If you use localhost, you must set adb port forwarding below. This is 
 #because this URL is used by the instrumented app, which is *not*
 #running locally, but on the instrumentor/phone
-tomcat.url=http://123.45.67.89:8080
+tomcat.url=http://localhost:8080
+
+# Map localhost:8080 in the device/emulator to localhost:8080 in the adb host
+adb.forwarding.port.host=8080
+adb.forwarding.port.device=8080
 
 ella.recorder=com.apposcopy.ella.runtime.MethodCoverageRecorder
