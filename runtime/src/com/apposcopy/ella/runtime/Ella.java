@@ -8,6 +8,8 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.NameValuePair;
 
+import android.util.Log;
+
 import java.util.*;
 import java.io.*;
 
@@ -19,6 +21,7 @@ public class Ella
 	
 	private static CoverageRecorder covRecorder;
 	private static EllaMonitor ellaMonitor;
+	private static boolean alreadyUploading = false;
 
 	static {
 		try{
@@ -39,25 +42,31 @@ public class Ella
 	}
 
 	//called from the broadcast recvr
-	public static void startRecording(String ellaServerUrl)
+	static synchronized void beginUploading(String ellaServerUrl)
 	{
+		if(alreadyUploading)
+			return;
+		alreadyUploading = true;
 		ellaMonitor = new EllaMonitor(ellaServerUrl);
 		ellaMonitor.start();
-		System.out.println("ELLA: Coverage recording started.");
+		Log.d("ella", "Coverage data uploading began.");
 	}
 
 	//called from the broadcast recvr
-	public static void stopRecording()
+	static synchronized void endUploading()
 	{
+		if(!alreadyUploading)
+			return;
+
 		ellaMonitor.stop();
 		
 		try{
-			//dump coverage
-			ellaMonitor.dumpCoverage();
+			ellaMonitor.uploadCoverage(); //one final time
 		}catch(IOException e){
 			throw new Error(e);
 		}
-		System.out.println("ELLA: Coverage recording stopped.");
+		alreadyUploading = false;
+		Log.d("ella", "Coverage data uploading ended.");
 	}
 
 	private static class EllaMonitor extends Thread
@@ -79,8 +88,7 @@ public class Ella
 					// send an update to the server
 					if(covRecorder.supportsContinuousReporting()) {
 						try{
-							//dump coverage
-							dumpCoverage();
+							uploadCoverage();
 						}catch(IOException e){
 							throw new Error(e);
 						}
@@ -92,9 +100,9 @@ public class Ella
 			}
 		}
 		
-		public void dumpCoverage() throws IOException
+		public void uploadCoverage() throws IOException
 		{
-			System.out.println("ELLA: About to upload coverage data to "+url);
+			Log.d("ella", "About to upload coverage data to "+url);
 			
 			/*
 			  File file = new File(fileName);
@@ -115,7 +123,7 @@ public class Ella
 			
 			post.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 			HttpResponse response = client.execute(post);
-			System.out.println("ELLA: Coverage uploaded. id: "+id);
+			//System.out.println("ELLA: Coverage uploaded. id: "+id);
 		}
 	}
 	

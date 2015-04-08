@@ -11,9 +11,11 @@ public class BroadcastReceiver extends android.content.BroadcastReceiver
 		String action = intent.getStringExtra("action");
 		if(action.equals("b")){
 			String url = intent.getStringExtra("url");
-			Ella.startRecording(url);
+			Ella.beginUploading(url);
+			Log.d("ella", "Broadcast received to begin uploading coverage data. url = "+ url);
 		} else if(action.equals("e")){
-			Ella.stopRecording();
+			Log.d("ella", "Broadcast received to stop uploading coverage data.");
+			Ella.endUploading();
 		}
 	}
 }

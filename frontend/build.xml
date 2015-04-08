@@ -71,13 +71,21 @@
 					 update="true"
 					 localWar="${warname}"/>
   </target>
-  
-  <target name="set-up-adb-port-forwarding">
+
+  <condition property="do-set-up-adb-port-forwarding">
+    <and>
+      <isset property="adb.forwarding.port.device"/>
+      <isset property="adb.forwarding.port.host"/>
+    </and>
+  </condition>
+
+  <target name="set-up-adb-port-forwarding" if="do-set-up-adb-port-forwarding">
     <exec executable="adb"
       spawn="false"
 	  failonerror="true">
       <arg line="reverse tcp:${adb.forwarding.port.device} tcp:${adb.forwarding.port.host}"/>
     </exec>
+	<echo>Setting up port forwarding</echo>
   </target>
 
   <target name="clean">
