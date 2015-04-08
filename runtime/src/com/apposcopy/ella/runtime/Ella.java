@@ -58,13 +58,7 @@ public class Ella
 		if(!alreadyUploading)
 			return;
 
-		ellaMonitor.stop();
-		
-		try{
-			ellaMonitor.uploadCoverage(); //one final time
-		}catch(IOException e){
-			throw new Error(e);
-		}
+		ellaMonitor.stop = true;
 		alreadyUploading = false;
 		Log.d("ella", "Coverage data uploading ended.");
 	}
@@ -73,6 +67,7 @@ public class Ella
 	{
 		private boolean append = false;
 		private String url;
+		boolean stop = false;
 
 		EllaMonitor(String url)
 		{
@@ -81,7 +76,7 @@ public class Ella
 		
 		public void run()
 		{
-			while(true){
+			while(!stop){
 				try{
 					sleep(500);
 					// If continuous coverage reporting is supported, 
