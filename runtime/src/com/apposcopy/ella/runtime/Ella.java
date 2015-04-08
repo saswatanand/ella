@@ -13,11 +13,12 @@ import java.io.*;
 
 public class Ella
 {
-	private static final String RECORD_COVERAGE_FILE = "/sdcard/ella_record_coverage";
-	private static final String URL_FILE = "/sdcard/ella_url.txt";
-	private static String id; //instrumentation will set the value
+	//instrumentation will set values of the following two fields
+	private static String id; 
 	private static String covRecorderClassName;
+	
 	private static CoverageRecorder covRecorder;
+	private static EllaMonitor ellaMonitor;
 
 	static {
 		try{
@@ -29,7 +30,6 @@ public class Ella
 		} catch(IllegalAccessException e){
 			throw new Error(e);
 		} 
-		new EllaMonitor().start();
 	}
 
 	public static void m(int mId)
@@ -37,58 +37,42 @@ public class Ella
 		//System.out.println("Covered "+mId);
 		covRecorder.m(mId);
 	}
-	
-	private static void dumpCoverage(String url) throws IOException
+
+	//called from the broadcast recvr
+	public static void startRecording(String ellaServerUrl)
 	{
-		dumpCoverage(url, false);
+		ellaMonitor = new EllaMonitor(ellaServerUrl);
+		ellaMonitor.start();
+		System.out.println("ELLA: Coverage recording started.");
 	}
 
-	private static void dumpCoverage(String url, boolean append) throws IOException
+	//called from the broadcast recvr
+	public static void stopRecording()
 	{
-		System.out.println("ELLA: About to upload coverage data to "+url);
-
-		/*
-		File file = new File(fileName);
-		BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-		writer.write(coverage.toString());
-		writer.close();
-		*/
-
-		HttpClient client = new DefaultHttpClient();
-		HttpPost post = new HttpPost(url);
-
-		List<NameValuePair> nameValuePairs = new ArrayList();
-		nameValuePairs.add(new BasicNameValuePair("id", id));
-		nameValuePairs.add(new BasicNameValuePair("cov", covRecorder.data()));
-		if(append) {
-			nameValuePairs.add(new BasicNameValuePair("append", "true"));
+		ellaMonitor.stop();
+		
+		try{
+			//dump coverage
+			ellaMonitor.dumpCoverage();
+		}catch(IOException e){
+			throw new Error(e);
 		}
-
-		post.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-		HttpResponse response = client.execute(post);
-		System.out.println("ELLA: Coverage uploaded. id: "+id);
+		System.out.println("ELLA: Coverage recording stopped.");
 	}
-
 
 	private static class EllaMonitor extends Thread
 	{
-		EllaMonitor()
+		private boolean append = false;
+		private String url;
+
+		EllaMonitor(String url)
 		{
+			this.url = url;
 		}
 		
 		public void run()
 		{
-			String url = "";
-			boolean append = false;
-			try{
-				url = new BufferedReader(new FileReader(URL_FILE)).readLine();
-			}catch(IOException e){
-				throw new Error(e);
-			}
-		
-			//keep recording coverage as long as this file exists on the sd card
-			File file = new File(RECORD_COVERAGE_FILE);
-			while(file.exists()){
+			while(true){
 				try{
 					sleep(500);
 					// If continuous coverage reporting is supported, 
@@ -96,7 +80,7 @@ public class Ella
 					if(covRecorder.supportsContinuousReporting()) {
 						try{
 							//dump coverage
-							dumpCoverage(url, append);
+							dumpCoverage();
 						}catch(IOException e){
 							throw new Error(e);
 						}
@@ -106,14 +90,32 @@ public class Ella
 					break;
 				}
 			}
-
-			try{
-				//dump coverage
-				dumpCoverage(url, append);
-			}catch(IOException e){
-				throw new Error(e);
+		}
+		
+		public void dumpCoverage() throws IOException
+		{
+			System.out.println("ELLA: About to upload coverage data to "+url);
+			
+			/*
+			  File file = new File(fileName);
+			  BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+			  writer.write(coverage.toString());
+			  writer.close();
+			*/
+			
+			HttpClient client = new DefaultHttpClient();
+			HttpPost post = new HttpPost(url);
+			
+			List<NameValuePair> nameValuePairs = new ArrayList();
+			nameValuePairs.add(new BasicNameValuePair("id", id));
+			nameValuePairs.add(new BasicNameValuePair("cov", covRecorder.data()));
+			if(append) {
+				nameValuePairs.add(new BasicNameValuePair("append", "true"));
 			}
-			System.out.println("ELLA: Shutdown hook done.");
+			
+			post.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+			HttpResponse response = client.execute(post);
+			System.out.println("ELLA: Coverage uploaded. id: "+id);
 		}
 	}
 	

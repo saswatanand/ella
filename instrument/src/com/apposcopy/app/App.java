@@ -28,6 +28,9 @@ public class App
 	private String dexFilePath;
 	private String inputFile;
 
+	private File manifestFile;
+	private String apktoolOutDir;
+
 	public App(String inputFile) throws IOException
 	{
 		this.inputFile = inputFile;
@@ -43,10 +46,11 @@ public class App
 	{
 		App app = new App(inputFile);
 		if(inputFile.endsWith(".apk")){			
-			String apktoolOutDir = app.runApktool(scratchDir, apktoolJar);
-			File manifestFile = new File(apktoolOutDir, "AndroidManifest.xml");				
-			ParseManifest pmf = new ParseManifest(manifestFile, app);
-			app.process(apktoolOutDir);
+			app.apktoolOutDir = app.runApktool(scratchDir, apktoolJar);
+			ParseManifest pmf = new ParseManifest(new File(app.apktoolOutDir, "AndroidManifest.xml"), app);
+			app.process(app.apktoolOutDir);
+			app.manifestFile = pmf.manifestFile();
+
 		}
 		return app;
 	}
@@ -178,7 +182,7 @@ public class App
 		return dexFilePath;
 	}
 
-	public void updateDexFile(String newDexFilePath, File outputFile) throws IOException
+	public void updateApk(String newDexFilePath, File newManifestFile, File outputFile, String apktoolJar) throws IOException
 	{
 		if(!inputFile.endsWith(".apk")){
 			assert inputFile.endsWith(".dex") && outputFile.getName().endsWith(".dex");
@@ -187,6 +191,31 @@ public class App
 		}
 		
 		assert outputFile.getName().endsWith(".apk");
+
+		Files.copy(newManifestFile, new File(apktoolOutDir, "AndroidManifest.xml"));
+		Files.copy(new File(newDexFilePath), new File(apktoolOutDir, "classes.dex"));
+
+		String[] args = {"java", "-Xmx1g", "-ea",
+						 "-classpath", apktoolJar,
+						 "brut.apktool.Main",
+						 "b",  "-o", outputFile.getAbsolutePath(), apktoolOutDir};
+						 
+		try{
+			int exitCode = Runtime.getRuntime().exec(args).waitFor();
+			if(exitCode != 0) {
+				for(String a : args) System.out.print(a+" ");
+				System.out.println("");
+				throw new Error("Error in repackaging the apk."); 
+			}
+		}catch(Exception e){
+			for(String a : args) System.out.print(a+" ");
+			System.out.println("");
+			throw new Error("Error in repackaging the apk.");
+		}
+
+		
+
+		/*
 		//stick the new dex file into the output apk
 		ZipInputStream zin = new ZipInputStream(new BufferedInputStream(new FileInputStream(inputFile)));
 		ZipOutputStream zout = new ZipOutputStream(new FileOutputStream(outputFile));
@@ -198,23 +227,36 @@ public class App
 			if(entryName.startsWith("META-INF"))
 				continue;
 			zout.putNextEntry(new ZipEntry(entryName));
-			if (!entryName.equals("classes.dex")) {
-				//just copy it
-				while ((len = zin.read(buffer)) != -1) {
+			if(entryName.equals("AndroidManifest.xml")) {
+				//write the instrumented classes.dex
+				BufferedInputStream bin = new BufferedInputStream(new FileInputStream(newManifestFile));
+				while ((len = bin.read(buffer)) != -1) {
 					zout.write(buffer, 0, len);
 				}
-			} else {
+				bin.close();
+			} else if(entryName.equals("classes.dex")) {
 				//write the instrumented classes.dex
 				BufferedInputStream bin = new BufferedInputStream(new FileInputStream(newDexFilePath));
 				while ((len = bin.read(buffer)) != -1) {
 					zout.write(buffer, 0, len);
 				}
 				bin.close();
+			} else {
+				//just copy it
+				while ((len = zin.read(buffer)) != -1) {
+					zout.write(buffer, 0, len);
+				}
 			}
 			zout.closeEntry();
 		}
 		zin.close();
 		zout.close();
+		*/
+	}
+
+	public File manifestFile()
+	{
+		return this.manifestFile;
 	}
 
 	public List<Component> components()

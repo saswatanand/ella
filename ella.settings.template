@@ -33,7 +33,7 @@ tomcat.password=xxx
 #ROOT URL
 #If you use localhost, you must set adb port forwarding below. This is 
 #because this URL is used by the instrumented app, which is *not*
-#running locally, but on the instrumentor/phone
+#running locally, but on the emulator/phone
 tomcat.url=http://localhost:8080
 
 # Map localhost:8080 in the device/emulator to localhost:8080 in the adb host

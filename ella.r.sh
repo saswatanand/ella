@@ -3,15 +3,13 @@
 ELLA_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 if [ "$1" == 'b' ]; then
-  echo "" > $ELLA_DIR/ella_record_coverage
-  adb push $ELLA_DIR/ella_record_coverage /sdcard/ella_record_coverage
-  adb push $ELLA_DIR/ella_url.txt /sdcard/ella_url.txt
   ant -f $ELLA_DIR/frontend/build.xml set-up-adb-port-forwarding
+  adb shell am broadcast -a com.apposcopy.ella.COVERAGE --es action \"b\" --es url \"`cat ella_url.txt`\"
   exit
 fi
 
 if [ "$1" == "e" ]; then
-  adb shell rm /sdcard/ella_record_coverage
+  adb shell am broadcast -a com.apposcopy.ella.COVERAGE --es action \"e\"
   exit
 fi
 

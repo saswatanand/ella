@@ -18,6 +18,7 @@ public class ParseManifest
 	private App app;
 	private XPath xpath;
 	private Document document;
+	private File decodedManifestFile;
 
 	public ParseManifest(File manifestFile, App app)
 	{
@@ -27,11 +28,11 @@ public class ParseManifest
 			File tmpFile = File.createTempFile("stamp_android_manifest", null, null);
 			tmpFile.deleteOnExit();
 			UTF8ToAnsiUtils.main(new String[]{manifestFile.getAbsolutePath(), tmpFile.getAbsolutePath()});
-			manifestFile = tmpFile;
+			this.decodedManifestFile = tmpFile;
 
 			DocumentBuilder builder =
 				DocumentBuilderFactory.newInstance().newDocumentBuilder();
-			document = builder.parse(manifestFile);
+			document = builder.parse(this.decodedManifestFile);
 			
 			xpath = XPathFactory.newInstance().newXPath();
 			xpath.setNamespaceContext(new PersonalNamespaceContext());
@@ -61,6 +62,11 @@ public class ParseManifest
 		}catch(Exception e){
 			throw new Error(e);
 		}		
+	}
+
+	public File manifestFile()
+	{
+		return this.decodedManifestFile;
 	}
 
 	private void readPermissionInfo() throws Exception
