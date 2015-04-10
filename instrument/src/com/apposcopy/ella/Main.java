@@ -121,7 +121,13 @@ public class Main
 			Element actionElement = document.createElement("action");
 			actionElement.setAttribute("android:name", "com.apposcopy.ella.COVERAGE");
 			filterElement.appendChild(actionElement);
-			
+
+			//insert ella upload service
+			Element svcElement = document.createElement("service");
+			svcElement.setAttribute("android:name", "com.apposcopy.ella.runtime.UploadService");
+			svcElement.setAttribute("android:exported", "false");
+			applicationNode.appendChild(svcElement);
+
 			// write the content into xml file
 			File updatedManifest = File.createTempFile("stamp_android_manifest", null, null);
 			updatedManifest.deleteOnExit();

@@ -91,6 +91,7 @@
   <target name="clean">
     <delete dir="classes"/>
 	<delete file="${warname}"/>
+    <delete file="web.xml"/>
   </target>
 
   </project>        

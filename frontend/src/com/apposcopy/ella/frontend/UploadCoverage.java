@@ -29,11 +29,8 @@ public class UploadCoverage extends HttpServlet
 		// Create path components to save the file
 		String appId = request.getParameter("id");
 		String covData = request.getParameter("cov");
-		String appendParam = request.getParameter("append");
-		boolean append = false;
-		if(appendParam != null && appendParam.equals("true")) {
-			append = true;
-		}
+		String beginTime = request.getParameter("beginTime");
+
 		String ellaOutDir = getServletContext().getInitParameter("ella.outdir");
 
 		//System.out.println("pkg: "+pkg+" covData: "+covData+" ell.dir: "+ellaDir);
@@ -45,7 +42,9 @@ public class UploadCoverage extends HttpServlet
 			String path = ellaOutDir + File.separator + appId;
 			File dir = new File(path);
 			dir.mkdir();
-			out = new BufferedWriter(new FileWriter(new File(dir, "coverage.dat"), append));
+			File datFile = new File(dir, "coverage.dat."+beginTime);
+			boolean append = datFile.exists();
+			out = new BufferedWriter(new FileWriter(datFile, append));
 			out.write(covData);
 			writer.println("Uploaded coverage data.");
 			logger.log(Level.INFO, "Upload succeeded");
