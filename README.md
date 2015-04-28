@@ -44,7 +44,7 @@ ant
 ## Instrument the app
 Execute the following command.
 ```
-ella.i.sh <path-to-apk>
+ella.sh i <path-to-apk>
 ```
 
 `<path-to-apk>` is the Apk that you want to instrument. This command would produce the instrumented apk named `instrumented.apk` inside a subdirectory inside `<ella-home>/ella-out` directory, where `<ella-home>` represents the installation directory of ella. The name of the subdirectory is derived from `<path-to-apk>`.
@@ -52,20 +52,16 @@ ella.i.sh <path-to-apk>
 ## Before executing ella-instrumented apps
 Deploy ella webapp by issuing the following command in ella's installation directory.
 ```
-ant -f frontend/build.xml deploy
+ella.sh d
 ```
 
 ## Collecting coverage
 1. Install the `instrumented.apk` on the emulator or device. You may have to uninstall it first if the app is already installed.
-2. Before executing the instrumented app, execute the following command on the PC connected to the device/emulator. `b` stands for "begin" as in begin recording coverage data.
-
-        ella.r.sh b
-
-3. Execute the instrumented app. 
-4. To end recording coverage data and upload the data to ella webapp, execute the following command on the PC connected to the device/emulator. `e` stands for "end" in end recording coverage data.
-
-        ella.r.sh e
-
+2. Execute the instrumented app. 
+3. To end recording coverage data and upload the data to ella webapp, execute the following command on the PC connected to the device/emulator. `e` stands for "end" in end recording coverage data.
+```
+ella.sh e
+```
 
 ## Viewing coverage report
 
