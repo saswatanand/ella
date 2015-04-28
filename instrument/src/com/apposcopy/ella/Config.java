@@ -61,6 +61,8 @@ public class Config
 		alias = props.getProperty("jarsigner.alias").trim();
 		
 		tomcatUrl = props.getProperty("tomcat.url").trim();
+		if(!tomcatUrl.startsWith("http://") && !tomcatUrl.startsWith("http://"))
+			throw new RuntimeException("The value of tomcat.url must start with either http:// or https://. Current value: "+tomcatUrl);
 		
 		recorderClassName = props.getProperty("ella.recorder").trim();
 	}

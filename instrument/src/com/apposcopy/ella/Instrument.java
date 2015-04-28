@@ -192,15 +192,26 @@ public class Instrument
 				break;
 			}
 		}
-		
+
+		//get the reference to the "private static String covRecorderClassName" field
+		Field uploadUrlField = null;
+		for(Field f : classDef.getStaticFields()){
+			if(f.getName().equals("uploadUrl")){
+				uploadUrlField = f;
+				break;
+			}
+		}		
+
 		MutableMethodImplementation newCode = new MutableMethodImplementation(code, regCount+1);
 
 		newCode.addInstruction(0, new BuilderInstruction21c(Opcode.SPUT_OBJECT, regCount, covRecorderClassNameField));
 		newCode.addInstruction(0, new BuilderInstruction21c(Opcode.CONST_STRING, regCount, new ImmutableStringReference(Config.g().recorderClassName)));
 
-
 		newCode.addInstruction(0, new BuilderInstruction21c(Opcode.SPUT_OBJECT, regCount, idField));
 		newCode.addInstruction(0, new BuilderInstruction21c(Opcode.CONST_STRING, regCount, new ImmutableStringReference(Config.g().appId)));
+
+		newCode.addInstruction(0, new BuilderInstruction21c(Opcode.SPUT_OBJECT, regCount, uploadUrlField));
+		newCode.addInstruction(0, new BuilderInstruction21c(Opcode.CONST_STRING, regCount, new ImmutableStringReference(Config.g().tomcatUrl+"/ella/uploadcoverage")));
 
 		return newCode;
 	}
