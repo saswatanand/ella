@@ -1,14 +1,14 @@
 ELLA: A Code Coverage Tool for Android APK's 
 ====
 
-ELLA is a tool to instrument Android APK's to collect
-coverage. Currently, ella can measure method coverage.
+Ella is a tool to instrument Android APK's to collect
+coverage. Currently, ella can collect method coverage and time-stamped trace of covered methods.
 
 Several tools exist that can instrument APK's to some
 degree. But they usually do not work very reliably because they
 translate Dalvik bytecodes to another form such as Java bytecode or
 internal representations of other tools, and this translation is quite
-challenging.  Thus, EMMA's approach is to instrument at the Dalvik
+challenging.  Thus, Ella's approach is to instrument at the Dalvik
 bytecode level. It does so by using the great DexLib2 library (a part
 of the [Smali](https://github.com/JesusFreke/smali) project).
 
@@ -22,7 +22,7 @@ through webapps). Download appropriate binary distribution from [Tomcat website]
 
 ## Before building ella
 1. Rename `ella.settings.template` file to `ella.settings`.
-2. Make following changes in `ella.settings`. 
+2. There are several environment variables. But only the following are mandatory, and need to be set in `ella.settings`. 
   1. Set `android.jar` to the path to `android.jar` file of the appropriate
 android SDK version. For example, if you will execute the instrumented app in an emulator
 with target API level 19, then use the path to `platforms/android-19/android.jar` inside the android SDK directory.
@@ -33,7 +33,6 @@ with target API level 19, then use the path to `platforms/android-19/android.jar
 
   4. Set `tomcat.password` to the above user's password. 
   5. Set `tomcat.dir` to installation directory of tomcat. 
-  4. `tomcat.url` should be set to the ROOT URL of web server. Dont use `http://localhost:8080`; Instead, use the IP address. This URL is used by the instrumented app, which is *not* running locally, but on the instrumentor/phone.
 
 ## Build ella
 Execute the following command inside ella's installation directory.
@@ -63,7 +62,7 @@ ella.sh d
 ella.sh e
 ```
 
-## Viewing coverage report
+## Coverage data
 
 The coverage data are stored inside a subdirectory of `<ella-home>/ella-out` directory, where `<ella-home>` represents the installation directory of ella. The name of the subdirectory is derived from `<path-to-apk>`. Currently, coverage data are stored in files `coverage.dat` and `covids`. `covids` contain the list of method signatures; index of a method is its identifier. `coverage.dat` contains the list of method identifiers that were executed.
 

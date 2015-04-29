@@ -60,9 +60,18 @@ public class Config
 		keyPass = props.getProperty("jarsigner.keypass").trim();
 		alias = props.getProperty("jarsigner.alias").trim();
 		
-		tomcatUrl = props.getProperty("tomcat.url").trim();
-		if(!tomcatUrl.startsWith("http://") && !tomcatUrl.startsWith("http://"))
-			throw new RuntimeException("The value of tomcat.url must start with either http:// or https://. Current value: "+tomcatUrl);
+		tomcatUrl = props.getProperty("tomcat.url");
+		if(tomcatUrl != null){
+			tomcatUrl = tomcatUrl.trim();
+			if(!tomcatUrl.startsWith("http://") && !tomcatUrl.startsWith("http://"))
+				throw new RuntimeException("The value of tomcat.url must start with either http:// or https://. Current value: "+tomcatUrl);
+		} else {
+			try{
+				tomcatUrl = "http://"+java.net.InetAddress.getLocalHost().getHostAddress();
+			}catch(java.net.UnknownHostException e){
+				throw new Error(e);
+			}
+		}
 		
 		recorderClassName = props.getProperty("ella.recorder").trim();
 	}

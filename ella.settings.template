@@ -30,10 +30,14 @@ tomcat.dir=/home/saswat/ellarepo/tomcat
 tomcat.manager=xxx
 tomcat.password=xxx
 
-#ROOT URL
-#If you use localhost, you must set adb port forwarding below. This is 
-#because this URL is used by the instrumented app, which is *not*
-#running locally, but on the emulator/phone
+# ROOT URL
+# OPTIONAL. No need to set this if the machine that you
+# are running "ella.sh i <path.apk>" on is the one on
+# which tomcat server and ella webapp are running
+#
+# If you use localhost, you must set adb port forwarding below. This is 
+# because this URL is used by the instrumented app, which is *not*
+# running locally, but on the emulator/phone
 tomcat.url=http://localhost:8080
 
 # Map localhost:8080 in the device/emulator to localhost:8080 in the adb host
