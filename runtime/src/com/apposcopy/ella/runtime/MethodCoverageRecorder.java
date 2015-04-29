@@ -1,23 +1,20 @@
 package com.apposcopy.ella.runtime;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class MethodCoverageRecorder implements CoverageRecorder
 {
-	protected BitSet coverage = new BitSet();
+	protected Set<Integer> coverage = Collections.newSetFromMap(new ConcurrentHashMap<Integer,Boolean>());
 
 	public void m(int mId)
 	{
-		coverage.set(mId);
+		coverage.add(mId);
 	}
 	
 	public String data()
 	{
 		return coverage.toString();
-	}
-	
-	public boolean supportsContinuousReporting() {
-		return false;
 	}
 
 }

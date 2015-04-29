@@ -76,9 +76,4 @@ public class MethodSequenceRecorder implements CoverageRecorder
 		rwl.writeLock().unlock();
 		return builder.toString();
 	}
-	
-	@Override
-	public boolean supportsContinuousReporting() {
-		return true;
-	}
 }
