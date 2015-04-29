@@ -41,15 +41,39 @@ public class Config
 		String btPath = props.getProperty("android.buildtools.dir");
 		if(btPath == null)
 			btPath = findAndroidBuildToolsPath();
+
 		dxJar = btPath + File.separator + "lib" + File.separator + "dx.jar";
-		zipAlign = btPath + File.separator + "zipalign";
+
+		File zipAlignFile = new File(btPath, "zipalign");
+		if(zipAlignFile.exists())
+			zipAlign = zipAlignFile.getPath();
+		else {
+			zipAlignFile = new File(btPath, File.separator+".."+File.separator+".."+File.separator+"tools"+File.separator+"zipalign");
+			if(zipAlignFile.exists())
+				zipAlign = zipAlignFile.getPath();
+			else
+				assert false : zipAlignFile.getPath();
+		}
+			
 
 		ellaOutDir = props.getProperty("ella.outdir", ellaDir+File.separator+"ella-out").trim();
 		
-		keyStore = props.getProperty("jarsigner.keystore").trim();
-		storePass = props.getProperty("jarsigner.storepass").trim();
-		keyPass = props.getProperty("jarsigner.keypass").trim();
-		alias = props.getProperty("jarsigner.alias").trim();
+		keyStore = props.getProperty("jarsigner.keystore");
+		storePass = props.getProperty("jarsigner.storepass");
+		keyPass = props.getProperty("jarsigner.keypass");
+		alias = props.getProperty("jarsigner.alias");
+		
+		if(keyStore != null && storePass != null && keyPass != null && alias != null){
+			keyStore = keyStore.trim();
+			storePass = storePass.trim();
+			keyPass = keyPass.trim();
+			alias = alias.trim();
+		} else {
+			keyStore = ellaDir+File.separator+".android"+File.separator+"debug.keystore";
+			storePass = "android";
+			keyPass = "android";
+			alias = "androiddebugkey";
+		}
 		
 		tomcatUrl = props.getProperty("tomcat.url");
 		if(tomcatUrl != null){
@@ -64,7 +88,7 @@ public class Config
 			}
 		}
 		
-		recorderClassName = props.getProperty("ella.recorder").trim();
+		recorderClassName = props.getProperty("ella.recorder", "com.apposcopy.ella.runtime.MethodCoverageRecorder").trim();
 	}
 
 	String outDir()

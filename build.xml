@@ -3,9 +3,43 @@
   <dirname property="ella.dir" file="${ant.file}"/>
   <property file="${ella.dir}/ella.settings"/>
 
-  <target name="init">
-	<echo file="${ella.dir}/ella_url.txt">${tomcat.url}/ella/uploadcoverage
-</echo>
+  <condition property="do-create-keystore">
+	<and>
+	  <not>
+		<and>
+		  <isset property="jarsigner.keystore"/>
+		  <isset property="jarsigner.storepass"/>
+		  <isset property="jarsigner.keypass"/>
+		  <isset property="jarsigner.alias"/>
+		</and>
+	  </not>
+	  <not>
+		<available file="${ella.dir}/.android/debug.keystore"/>
+	  </not>
+	</and>
+  </condition>
+
+  <target name="create-keystore" if="do-create-keystore">
+	<mkdir dir="${ella.dir}/.android"/>
+	<exec executable="keytool"
+		  spawn="false"
+		  failonerror="true">
+	  <arg value="-genkey"/> 
+	  <arg value="-v"/>
+	  <arg value="-keystore"/>
+	  <arg value="${ella.dir}/.android/debug.keystore"/>
+	  <arg value="-storepass"/>
+	  <arg value="android"/>
+	  <arg value="-alias"/>
+	  <arg value="androiddebugkey"/> 
+	  <arg value="-keypass"/>
+	  <arg value="android"/>
+	  <arg value="-dname"/>
+	  <arg value="CN=Android Debug,O=Android,C=US"/>
+	</exec>
+  </target>
+
+  <target name="init" depends="create-keystore">
   </target>
 
   <target name="build" depends="init">
@@ -24,7 +58,6 @@
          inheritAll="false" useNativeBasedir="true"/>
     <ant antfile="${ella.dir}/frontend/build.xml" target="clean"
          inheritAll="false" useNativeBasedir="true"/>
-	<delete file="${ella.dir}/ella_url.txt"/>
   </target>
 
 </project>

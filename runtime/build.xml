@@ -8,7 +8,9 @@
   <property name="jarname" value="${ella.dir}/bin/ella.runtime.jar"/>
   <property name="dexname" value="${ella.dir}/bin/ella.runtime.dex"/>
 
-  <property name="dx" value="dx"/>
+  <condition property="dx" value="${android.buildtools.dir}/dx" else="dx">
+	<isset property="android.buildtools.dir"/>
+  </condition>
 
   <target name="init">
     <!-- Create the time stamp -->

@@ -93,12 +93,14 @@ public class Main
 		CoverageId.g().dump();
 
 		System.out.println("\n********************************************************************************");
-		System.out.println("Install the following instrumented apk and then execute the app");
+		System.out.println("Install the following instrumented apk and then execute the app.");
 		System.out.println(config.outputFile);
 		System.out.println("********************************************************************************\n");
 		
 		System.out.println("\n********************************************************************************");
-		System.out.println("After coverage data is collected, view the coverage report at the following URL.");
+		System.out.println("Coverage data will be stored in the following directory.");
+		System.out.println(config.outDir());
+		System.out.println("View the coverage report at the following URL.");
 		System.out.println(config.tomcatUrl+"/viewcoverage?apppath="+appPath);
 		System.out.println("********************************************************************************\n");
 	}

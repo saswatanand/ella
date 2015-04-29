@@ -26,13 +26,12 @@ through webapps). Download appropriate binary distribution from [Tomcat website]
   1. Set `android.jar` to the path to `android.jar` file of the appropriate
 android SDK version. For example, if you will execute the instrumented app in an emulator
 with target API level 19, then use the path to `platforms/android-19/android.jar` inside the android SDK directory.
-  2. Set `jarsigner.*` variables to appropriate values. [jarsigner](http://docs.oracle.com/javase/6/docs/technotes/tools/windows/jarsigner.html) tool is used to sign instrumented apk's.
-  3. Set `tomcat.manager` to the username of a tomcat user who has `manager-script` role (i.e., can deploy webapps on the server). Tomcat username and passwords are listed in the file name `conf/tomcat-users.xml` inside Tomcat's installation directory.  For example, you must have a line similar to the following in your `conf/tomcat-users.xml`.
+  2. Set `tomcat.manager` to the username of a tomcat user who has `manager-script` role (i.e., can deploy webapps on the server). Tomcat username and passwords are listed in the file name `conf/tomcat-users.xml` inside Tomcat's installation directory.  For example, you must have a line similar to the following in your `conf/tomcat-users.xml`.
 
           <user username="ella-tomcat-manager" password="XXXX" roles="manager-script"/>
 
-  4. Set `tomcat.password` to the above user's password. 
-  5. Set `tomcat.dir` to installation directory of tomcat. 
+  3. Set `tomcat.password` to the above user's password. 
+  4. Set `tomcat.dir` to installation directory of tomcat. 
 
 ## Build ella
 Execute the following command inside ella's installation directory.

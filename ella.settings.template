@@ -6,18 +6,18 @@ android.jar=/opt/android-sdk-linux/platforms/android-19/android.jar
 
 # path to "build-tools" inside android SDK
 # OPTIONAL. Set only if "build-tools" dir is not already in PATH
-android.buildtools.dir=/opt/android-sdk-linux/build-tools/19.0.0/
+#android.buildtools.dir=/opt/android-sdk-linux/build-tools/19.0.0/
 
 # directory where ella stores coverage data and other stuff
 # OPTIONAL. The default value is "ella-out" inside the ella dir
-ella.outdir=/home/saswat/ellaoutdir
+#ella.outdir=/home/saswat/ellaoutdir
 
 # settings used by jarsigner to sign the instrumented apk
-# TODO: make these OPTIONAL. Use debug keystore
-jarsigner.keystore=/home/saswat/.android/debug.keystore
-jarsigner.storepass=android
-jarsigner.keypass=android
-jarsigner.alias=androiddebugkey
+# OPTIONAL. By default, use ella-created debug keystore
+#jarsigner.keystore=/home/saswat/.android/debug.keystore
+#jarsigner.storepass=android
+#jarsigner.keypass=android
+#jarsigner.alias=androiddebugkey
 
 ############################################################
 # settings required for collection of coverage data during 
@@ -37,10 +37,10 @@ tomcat.password=xxx
 # If you use localhost, you must set adb port forwarding below. This is 
 # because this URL is used by the instrumented app, which is *not*
 # running locally, but on the emulator/phone
-tomcat.url=http://localhost:8080
+#tomcat.url=http://localhost:8080
 
 # Map localhost:8080 in the device/emulator to localhost:8080 in the adb host
-adb.forwarding.port.host=8080
-adb.forwarding.port.device=8080
+#adb.forwarding.port.host=8080
+#adb.forwarding.port.device=8080
 
-ella.recorder=com.apposcopy.ella.runtime.MethodCoverageRecorder
+#ella.recorder=com.apposcopy.ella.runtime.MethodCoverageRecorder
