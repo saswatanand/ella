@@ -6,6 +6,7 @@ import java.util.*;
 public class Config
 {
 	public String dxJar;
+	public String zipAlign;
 	public String apktoolJar;
 	public String ellaDir;
 	public String ellaRuntime;
@@ -37,21 +38,11 @@ public class Config
 		Properties props = new Properties();
 		props.load(new FileInputStream(ellaSettingsFile));
 
-		dxJar = props.getProperty("dx.jar");
-		if(dxJar == null){
-			String dxPath = props.getProperty("dx");
-			String btPath;
-			if(dxPath == null){
-				btPath = findAndroidBuildToolsPath();
-			}else{
-				dxPath = dxPath.trim();
-				assert dxPath.substring(dxPath.length()-2).equals("dx");
-				btPath = dxPath.substring(0, dxPath.length()-2);
-			}
-			dxJar = btPath + File.separator + "lib" + File.separator + "dx.jar";
-			System.out.println("dxJar = "+dxJar);
-		}
-		dxJar = dxJar.trim();
+		String btPath = props.getProperty("android.buildtools.dir");
+		if(btPath == null)
+			btPath = findAndroidBuildToolsPath();
+		dxJar = btPath + File.separator + "lib" + File.separator + "dx.jar";
+		zipAlign = btPath + File.separator + "zipalign";
 
 		ellaOutDir = props.getProperty("ella.outdir", ellaDir+File.separator+"ella-out").trim();
 		

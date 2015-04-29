@@ -4,10 +4,9 @@
 # android jar to compile (ella runtime library) against
 android.jar=/opt/android-sdk-linux/platforms/android-19/android.jar
 
-# path to dx tool
-# OPTIONAL. If Android SDK is installed, by default ella uses
-# the dx command that is in the PATH
-dx=/opt/android-sdk-linux/build-tools/19.0.0/dx
+# path to "build-tools" inside android SDK
+# OPTIONAL. Set only if "build-tools" dir is not already in PATH
+android.buildtools.dir=/opt/android-sdk-linux/build-tools/19.0.0/
 
 # directory where ella stores coverage data and other stuff
 # OPTIONAL. The default value is "ella-out" inside the ella dir

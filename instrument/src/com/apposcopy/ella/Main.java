@@ -88,7 +88,7 @@ public class Main
 
 		//sign the apk
 		if(config.outputFile.endsWith(".apk"))
-			app.signAndAlignApk(unsignedOutputFile, config.outputFile, config.keyStore, config.storePass, config.keyPass, config.alias);
+			app.signAndAlignApk(unsignedOutputFile, config.outputFile, config.keyStore, config.storePass, config.keyPass, config.alias, config.zipAlign);
 
 		CoverageId.g().dump();
 

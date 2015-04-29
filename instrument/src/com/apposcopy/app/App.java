@@ -76,7 +76,7 @@ public class App
 		return inputDexFile.getAbsolutePath();
 	}
 
-	public static void signAndAlignApk(File unsignedApk, String signedApkPath, String keyStore, String storePass, String keyPass, String alias)
+	public static void signAndAlignApk(File unsignedApk, String signedApkPath, String keyStore, String storePass, String keyPass, String alias, String zipAlignPath)
 	{
 		String[] argsSign = {"jarsigner", 
 							 "-keystore", keyStore,
@@ -93,7 +93,7 @@ public class App
 			throw new Error("Error in running jarsigner", e);
 		}
 		
-		String[] argsAlign = {"zipalign", 
+		String[] argsAlign = {zipAlignPath, 
 							  "-f", "4",
 							  unsignedApk.getAbsolutePath(),
 							  signedApkPath};
