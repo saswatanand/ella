@@ -5,6 +5,7 @@
   <property file="${ella.dir}/ella.settings"/>
   <property name="warname" value="${ella.dir}/bin/ella.war"/>
   <!--property name="tomcat.dir" location="${ella.dir}/tomcat"/-->
+  <property name="ella.outdir" value="${ella.dir}/ella-out"/>
 
   <path id="catalina-ant-classpath">
     <fileset dir="${tomcat.dir}/lib">
@@ -21,7 +22,9 @@
 		   classname="org.apache.catalina.ant.DeployTask" 
 		   classpathref="catalina-ant-classpath"/>
 
-  <property name="tomcat.manager.url" value="${tomcat.url}/manager/text"/>
+  <condition property="tomcat.manager.url" value="${tomcat.url}/manager/text" else="http://localhost:8080/manager/text">
+	<isset property="tomcat.url" />
+  </condition>  
 
   <target name="compile">
     <mkdir dir="classes"/>

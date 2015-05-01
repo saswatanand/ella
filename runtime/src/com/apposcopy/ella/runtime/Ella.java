@@ -52,6 +52,7 @@ public class Ella
 	private static class UploadThread extends Thread
 	{
 		private boolean stop = false;
+		private boolean first = true;
 
 		UploadThread()
 		{
@@ -86,7 +87,11 @@ public class Ella
 			String payload = covRecorder.data();
 			nameValuePairs.add(new BasicNameValuePair("cov", payload));
 			nameValuePairs.add(new BasicNameValuePair("stop", String.valueOf(stop)));
-			
+			if(first){
+				nameValuePairs.add(new BasicNameValuePair("recorder", covRecorderClassName));
+				first = false;
+			}
+
 			post.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 			HttpResponse response = client.execute(post);
 			Log.d("ella", "Coverage uploaded. id: "+id+ " data: "+payload);
