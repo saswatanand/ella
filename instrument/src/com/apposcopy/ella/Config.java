@@ -82,7 +82,7 @@ public class Config
 				throw new RuntimeException("The value of tomcat.url must start with either http:// or https://. Current value: "+tomcatUrl);
 		} else {
 			try{
-				tomcatUrl = "http://"+java.net.InetAddress.getLocalHost().getHostAddress();
+				tomcatUrl = "http://"+java.net.InetAddress.getLocalHost().getHostAddress()+":8080";
 			}catch(java.net.UnknownHostException e){
 				throw new Error(e);
 			}

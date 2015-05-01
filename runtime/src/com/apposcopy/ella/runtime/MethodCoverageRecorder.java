@@ -14,7 +14,11 @@ public class MethodCoverageRecorder implements CoverageRecorder
 	
 	public String data()
 	{
-		return coverage.toString();
+		StringBuilder builder = new StringBuilder();
+		for(int mId : coverage){
+			builder.append(mId).append('\n');
+		}
+		return builder.toString();
 	}
 
 }

@@ -94,7 +94,7 @@ public class Ella
 
 			post.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 			HttpResponse response = client.execute(post);
-			Log.d("ella", "Coverage uploaded. id: "+id+ " data: "+payload);
+			Log.d("ella", "Coverage uploaded. id: "+id+ " data size: "+payload.length());
 		}
 	}
 }
