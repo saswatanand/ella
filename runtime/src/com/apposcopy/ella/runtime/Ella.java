@@ -1,17 +1,14 @@
 package com.apposcopy.ella.runtime;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.NameValuePair;
-
 import android.util.Log;
 
-import java.util.*;
 import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.*;
+
+import org.json.JSONObject;
+import org.json.JSONException;
 
 public class Ella
 {
@@ -79,22 +76,42 @@ public class Ella
 		
 		public void uploadCoverage() throws IOException
 		{
-			HttpClient client = new DefaultHttpClient();
-			HttpPost post = new HttpPost(uploadUrl);
-			
-			List<NameValuePair> nameValuePairs = new ArrayList();
-			nameValuePairs.add(new BasicNameValuePair("id", id));
 			String payload = covRecorder.data();
-			nameValuePairs.add(new BasicNameValuePair("cov", payload));
-			nameValuePairs.add(new BasicNameValuePair("stop", String.valueOf(stop)));
-			if(first){
-				nameValuePairs.add(new BasicNameValuePair("recorder", covRecorderClassName));
-				first = false;
+			JSONObject json = new JSONObject();
+			try {
+				json.put("id",id);
+				json.put("cov", payload);
+				json.put("stop", String.valueOf(stop));
+				if(first){
+					json.put("recorder", covRecorderClassName);
+					first = false;
+				}
+			} catch(JSONException e) {
+				assert false; // Should never happen
+				return;
 			}
+			String jsonString = json.toString();
+			Log.d("ella", "Uploading coverage. id: "+id+ " data size: "+payload.length());
+			URL url = new URL(uploadUrl);
+			HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+			try {
+				urlConnection.setDoOutput(true);
+				urlConnection.setChunkedStreamingMode(0);
+				urlConnection.setRequestProperty("Content-Type", "application/json");
+				urlConnection.setRequestProperty("Accept", "application/json");
+				urlConnection.setRequestMethod("POST");
 
-			post.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-			HttpResponse response = client.execute(post);
-			Log.d("ella", "Coverage uploaded. id: "+id+ " data size: "+payload.length());
+				OutputStream out = new BufferedOutputStream(urlConnection.getOutputStream());
+				out.write(jsonString.getBytes(java.nio.charset.Charset.forName("UTF-8")));
+
+				int responseCode = urlConnection.getResponseCode();
+				if(responseCode == 200)
+					Log.d("ella", "Coverage uploaded. id: "+id+ " data size: "+payload.length());
+				else
+					Log.d("ella", "Failed to upload coverage, server response code: " + responseCode);
+			} finally {
+				urlConnection.disconnect();
+			}
 		}
 	}
 }
