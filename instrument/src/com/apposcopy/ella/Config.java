@@ -20,7 +20,8 @@ public class Config
 	public String storePass;
 	public String keyPass;
 	public String alias;
-	public String recorderClassName;
+	public String instrumentorClassNames;
+	public final Map<String,String> extras = new HashMap();
 
 	private static Config g;
 
@@ -88,7 +89,7 @@ public class Config
 			}
 		}
 		
-		recorderClassName = props.getProperty("ella.recorder", "com.apposcopy.ella.runtime.MethodCoverageRecorder").trim();
+		instrumentorClassNames = props.getProperty("ella.instrumentor", "com.apposcopy.ella.MethodCoverageInstrumentor").trim();
 	}
 
 	String outDir()

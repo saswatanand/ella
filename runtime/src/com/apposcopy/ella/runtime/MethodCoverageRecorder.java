@@ -3,7 +3,7 @@ package com.apposcopy.ella.runtime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class MethodCoverageRecorder implements CoverageRecorder
+public class MethodCoverageRecorder extends Recorder
 {
 	protected Set<Integer> coverage = Collections.newSetFromMap(new ConcurrentHashMap<Integer,Boolean>());
 

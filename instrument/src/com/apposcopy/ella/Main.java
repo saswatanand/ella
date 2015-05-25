@@ -30,7 +30,7 @@ public class Main
 			String a = args[i];
 			if(a.equals("-l")){
 				listClasses = true;
-			} else if(a.equals("-x")){
+			} else if(a.equals("-ella.exclude")){
 				config.excludeFile = args[i+1];
 				i++;
 			} else if(a.equals("-ella.dir")){
@@ -44,6 +44,9 @@ public class Main
 				i++;
 			} else if(a.equals("-ella.apktool")){
 				config.apktoolJar = args[i+1];
+				i++;
+			} else if(a.startsWith("-ella.")){
+				config.extras.put(a.substring(1), args[i+1]);
 				i++;
 			} else if(config.inputFile == null)
 				config.inputFile = a;
@@ -84,7 +87,7 @@ public class Main
 		File updatedManifestFile = updateManifest(app.manifestFile());
 
 		File unsignedOutputFile = File.createTempFile("ellainstrumented", ".apk");
-		app.updateApk(Instrument.instrument(app.dexFilePath()), updatedManifestFile, unsignedOutputFile, config.apktoolJar);
+		app.updateApk(new Instrument().instrument(app.dexFilePath()), updatedManifestFile, unsignedOutputFile, config.apktoolJar);
 
 		//sign the apk
 		if(config.outputFile.endsWith(".apk"))

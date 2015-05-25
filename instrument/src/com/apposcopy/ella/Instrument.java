@@ -8,37 +8,42 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.lang.reflect.InvocationTargetException;
 
+import org.jf.dexlib2.Opcode;
 import org.jf.dexlib2.DexFileFactory;
 import org.jf.dexlib2.dexbacked.DexBackedDexFile;
 import org.jf.dexlib2.iface.ClassDef;
 import org.jf.dexlib2.iface.DexFile;
 import org.jf.dexlib2.iface.Method;
 import org.jf.dexlib2.iface.Field;
-import org.jf.dexlib2.iface.reference.MethodReference;
 import org.jf.dexlib2.iface.MethodImplementation;
+import org.jf.dexlib2.iface.reference.MethodReference;
+import org.jf.dexlib2.iface.instruction.formats.*;
 import org.jf.dexlib2.immutable.ImmutableClassDef;
 import org.jf.dexlib2.immutable.ImmutableMethod;
 import org.jf.dexlib2.immutable.reference.ImmutableStringReference;
-import org.jf.dexlib2.iface.instruction.formats.*;
-import org.jf.dexlib2.Opcode;
+import org.jf.dexlib2.util.MethodUtil;
 import com.apposcopy.ella.dexlib2builder.MutableMethodImplementation;
 import com.apposcopy.ella.dexlib2builder.BuilderInstruction;
 import com.apposcopy.ella.dexlib2builder.instruction.*;
 
-
 import com.google.common.collect.Lists;
 
+/*
+ * @author Saswat Anand
+ */
 public class Instrument
 {
-	static MethodReference probeMethRef;
+	private DexFile dexFile;
+	private List<MethodInstrumentor> methInstrumentors = new ArrayList();
+	private String recorderClassName;
 
-	public static String instrument(String inputFile) throws IOException
+	public String instrument(String inputFile) throws IOException
 	{
 		File mergedFile = mergeEllaRuntime(inputFile);
 
-		DexFile dexFile = DexFileFactory.loadDexFile(mergedFile, 15);
+		this.dexFile = DexFileFactory.loadDexFile(mergedFile, 15);
 		
-		probeMethRef = findProbeMethRef(dexFile);
+		initMethInstrumentors();
  
 		Pattern excludePattern = readExcludePatterns();
 
@@ -54,13 +59,11 @@ public class Instrument
 					for (Method method: classDef.getMethods()) {
 						String name = method.getName();
 						//System.out.println("processing method '"+method.getDefiningClass()+": "+method.getReturnType()+ " "+ method.getName() + " p: " +  method.getParameters() + "'");
-					
 						MethodImplementation implementation = method.getImplementation();
 						if (implementation != null) {
-							MethodTransformer tr = new MethodTransformer(method);
 							MethodImplementation newImplementation = null;
 							//if(!method.getName().equals("<init>"))
-							newImplementation = tr.transform();
+							newImplementation = instrument(method);
 							
 							if(newImplementation != null){
 								modifiedMethod = true;
@@ -132,7 +135,69 @@ public class Instrument
 		return outputFile;
 	}
 
-	static Pattern readExcludePatterns() throws IOException
+	public MethodImplementation instrument(Method method)
+	{
+		MethodImplementation originalCode = method.getImplementation();
+        if (originalCode == null)
+            throw new RuntimeException("error: no code for method "+ method.getName());
+
+		int numRegisters = originalCode.getRegisterCount();
+        int numParameterRegisters = MethodUtil.getParameterRegisterCount(method);
+		int numNonParameterRegisters = numRegisters - numParameterRegisters;
+
+		//System.out.println("numRegisters = "+numRegisters+" numParameterRegisters = "+ numParameterRegisters);
+
+		int numParamRegistersToClone = numParameterRegisters;
+		
+		//if(numParamRegistersToClone > 0)
+		//	System.out.println("numParamRegistersToClone: "+numParamRegistersToClone);
+
+		// add (numParamRegistersToClone + 1) new registers
+		// +1 represents the register that we will use to store coverage id
+		// at [numNonParameterRegisters...(numNonParameterRegister+numParamRegistersToClone)]
+		
+		int numRegistersToAdd = 0;
+		for(MethodInstrumentor methInstrumentor : methInstrumentors)
+			numRegistersToAdd = Math.max(numRegistersToAdd, methInstrumentor.numRegistersToAdd());
+
+		int numNewRegisters = numParamRegistersToClone + numRegistersToAdd;
+
+        MutableMethodImplementation code = new MutableMethodImplementation(originalCode, numNewRegisters + numRegisters);
+
+		for(MethodInstrumentor methInstrumentor : methInstrumentors)
+			methInstrumentor.preinstrument(method, code);
+
+		int dest = numNonParameterRegisters;
+		BuilderInstruction newInstruction;
+		
+		if(!MethodUtil.isStatic(method)){
+			newInstruction = moveRegister(dest, dest + numNewRegisters, Opcode.MOVE_OBJECT);
+			code.addInstruction(0, newInstruction);
+			dest++;
+		}
+
+		for(CharSequence paramType : method.getParameterTypes()){
+			int firstChar = paramType.charAt(0);
+            if (firstChar == 'J' || firstChar == 'D') {
+				newInstruction = moveRegister(dest, dest + numNewRegisters, Opcode.MOVE_WIDE);
+				dest += 2;
+			} else {
+				if(firstChar == '[' || firstChar == 'L')
+					newInstruction = moveRegister(dest, dest + numNewRegisters, Opcode.MOVE_OBJECT);
+				else
+					newInstruction = moveRegister(dest, dest + numNewRegisters, Opcode.MOVE);
+				dest++;
+			}
+			code.addInstruction(0, newInstruction);
+		}
+
+		for(MethodInstrumentor methInstrumentor : methInstrumentors)
+			methInstrumentor.instrument(method, code, dest);
+
+        return code;
+    }
+
+	private Pattern readExcludePatterns() throws IOException
 	{
 		String fileName = Config.g().excludeFile;
 		if(fileName == null)
@@ -156,14 +221,34 @@ public class Instrument
 		reader.close();
 		return Pattern.compile(builder.toString());
 	}
-	
-	static MethodReference findProbeMethRef(DexFile dexFile)
+
+	private void initMethInstrumentors()
+	{
+		for(String instrumentorClassName : Config.g().instrumentorClassNames.split(",")){
+			try{
+				MethodInstrumentor mi = (MethodInstrumentor) Class.forName(instrumentorClassName).newInstance();
+				methInstrumentors.add(mi);
+				mi.setProbeMethRef(probeMethodRef(mi.probeMethName()));
+				if(recorderClassName != null)
+					assert recorderClassName.equals(mi.recorderClassName());
+				recorderClassName = mi.recorderClassName();
+			} catch(ClassNotFoundException e){
+				throw new Error(e);
+			} catch(InstantiationException e){
+				throw new Error(e);
+			} catch(IllegalAccessException e){
+				throw new Error(e);
+			} 
+		}
+	}
+
+	private MethodReference probeMethodRef(String probeMethName)
 	{
 		for (ClassDef classDef: dexFile.getClasses()) {
 			if(classDef.getType().startsWith("Lcom/apposcopy/ella/runtime/Ella;")){  
 				for (Method method: classDef.getMethods()) {
 					String name = method.getName();
-					if(name.equals("m"))
+					if(name.equals(probeMethName))
 						return method;
 				}
 			}
@@ -171,7 +256,7 @@ public class Instrument
 		return null;	
 	}
 
-	static MutableMethodImplementation injectId(MethodImplementation code, ClassDef classDef)
+	private MutableMethodImplementation injectId(MethodImplementation code, ClassDef classDef)
 	{
 		int regCount = code.getRegisterCount();
 		
@@ -187,7 +272,7 @@ public class Instrument
 		//get the reference to the "private static String covRecorderClassName" field
 		Field covRecorderClassNameField = null;
 		for(Field f : classDef.getStaticFields()){
-			if(f.getName().equals("covRecorderClassName")){
+			if(f.getName().equals("recorderClassName")){
 				covRecorderClassNameField = f;
 				break;
 			}
@@ -204,8 +289,9 @@ public class Instrument
 
 		MutableMethodImplementation newCode = new MutableMethodImplementation(code, regCount+1);
 
+		assert recorderClassName != null;
 		newCode.addInstruction(0, new BuilderInstruction21c(Opcode.SPUT_OBJECT, regCount, covRecorderClassNameField));
-		newCode.addInstruction(0, new BuilderInstruction21c(Opcode.CONST_STRING, regCount, new ImmutableStringReference(Config.g().recorderClassName)));
+		newCode.addInstruction(0, new BuilderInstruction21c(Opcode.CONST_STRING, regCount, new ImmutableStringReference(recorderClassName)));
 
 		newCode.addInstruction(0, new BuilderInstruction21c(Opcode.SPUT_OBJECT, regCount, idField));
 		newCode.addInstruction(0, new BuilderInstruction21c(Opcode.CONST_STRING, regCount, new ImmutableStringReference(Config.g().appId)));
@@ -216,7 +302,64 @@ public class Instrument
 		return newCode;
 	}
 
-	static File mergeEllaRuntime(String inputFile) throws IOException
+	public static BuilderInstruction moveRegister(int dest, int src, Opcode opcode)
+	{
+		int destNumBits = numBits(dest);
+		int srcNumBits = numBits(src);
+
+		if(destNumBits == 4)
+			if(srcNumBits == 4)
+				return new BuilderInstruction12x(opcode, dest, src);
+			else
+				return new BuilderInstruction22x(opcode_FROM16(opcode), dest, src);
+		if(destNumBits == 8)
+			return new BuilderInstruction22x(opcode_FROM16(opcode), dest, src);
+		if(destNumBits == 16)
+			return new BuilderInstruction32x(opcode_16(opcode), dest, src);
+		throw new RuntimeException("Unexpected: "+destNumBits+" "+srcNumBits);
+	}
+
+	public static Opcode opcode_FROM16(Opcode opcode)
+	{
+		switch(opcode){
+		case MOVE:
+			return Opcode.MOVE_FROM16;
+		case MOVE_OBJECT:
+			return Opcode.MOVE_OBJECT_FROM16;
+		case MOVE_WIDE:
+			return Opcode.MOVE_WIDE_FROM16;
+		default:
+			throw new RuntimeException("unexpected "+ opcode);
+		}
+	}
+
+	public static Opcode opcode_16(Opcode opcode)
+	{
+		switch(opcode){
+		case MOVE:
+			return Opcode.MOVE_16;
+		case MOVE_OBJECT:
+			return Opcode.MOVE_OBJECT_16;
+		case MOVE_WIDE:
+			return Opcode.MOVE_WIDE_16;
+		default:
+			throw new RuntimeException("unexpected "+ opcode);
+		}
+	}
+
+	public static int numBits(int reg)
+	{
+		if(reg < 0x0000000F)
+			return 4;
+		else if(reg < 0x000000FF)
+			return 8;
+		else if(reg < 0x0000FFFF)
+			return 16;
+		else 
+			throw new RuntimeException("More than 16 bits is required to encode register "+reg);
+	}
+
+	private File mergeEllaRuntime(String inputFile) throws IOException
 	{
 		String dxJar = Config.g().dxJar;
 		if(dxJar == null)

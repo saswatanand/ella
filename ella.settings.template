@@ -43,4 +43,4 @@ tomcat.password=xxx
 #adb.forwarding.port.host=8080
 #adb.forwarding.port.device=8080
 
-#ella.recorder=com.apposcopy.ella.runtime.MethodCoverageRecorder
+#ella.instrumentor=com.apposcopy.ella.MethodCoverageInstrumentor

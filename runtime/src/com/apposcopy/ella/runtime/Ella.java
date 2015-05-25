@@ -14,16 +14,16 @@ public class Ella
 {
 	//instrumentation will set values of the following three fields
 	private static String id; 
-	private static String covRecorderClassName;
+	private static String recorderClassName;
 	private static String uploadUrl;
 
 	private static final int UPLOAD_TIME_PERIOD = 500;
-	private static CoverageRecorder covRecorder;
+	private static Recorder recorder;
 	private static UploadThread uploadThread;
 
 	static {
 		try{
-			covRecorder = (CoverageRecorder) Class.forName(covRecorderClassName).newInstance();			
+			recorder = (Recorder) Class.forName(recorderClassName).newInstance();			
 			uploadThread = new UploadThread();
 			uploadThread.start();
 		} catch(ClassNotFoundException e){
@@ -37,8 +37,12 @@ public class Ella
 
 	public static void m(int mId)
 	{
-		//System.out.println("Covered "+mId);
-		covRecorder.m(mId);
+		recorder.m(mId);
+	}
+
+	public static void v(Object obj, int metadata)
+	{
+		recorder.v(obj, metadata);
 	}
 
 	static void stopRecording()
@@ -76,14 +80,14 @@ public class Ella
 		
 		public void uploadCoverage() throws IOException
 		{
-			String payload = covRecorder.data();
+			String payload = recorder.data();
 			JSONObject json = new JSONObject();
 			try {
 				json.put("id",id);
 				json.put("cov", payload);
 				json.put("stop", String.valueOf(stop));
 				if(first){
-					json.put("recorder", covRecorderClassName);
+					json.put("recorder", recorderClassName);
 					first = false;
 				}
 			} catch(JSONException e) {

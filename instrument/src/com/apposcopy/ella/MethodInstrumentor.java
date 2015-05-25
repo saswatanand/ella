@@ -2,6 +2,7 @@ package com.apposcopy.ella;
 
 import org.jf.dexlib2.iface.Method;
 import org.jf.dexlib2.iface.MethodImplementation;
+import org.jf.dexlib2.iface.reference.MethodReference;
 import org.jf.dexlib2.iface.instruction.Instruction;
 import org.jf.dexlib2.iface.instruction.OneRegisterInstruction;
 import org.jf.dexlib2.iface.instruction.TwoRegisterInstruction;
@@ -17,177 +18,29 @@ import com.apposcopy.ella.dexlib2builder.instruction.*;
 
 import java.util.*;
 
-public class MethodTransformer
+/*
+ * @author Saswat Anand
+ */
+public abstract class MethodInstrumentor
 {
-	protected final Method method;
-	private int numRegisters;
-	private int numParameterRegisters;
-	private int numNonParameterRegisters;
-	private int numParamRegistersToClone = 0;
-	private int numNewRegisters = 0;
-	private Set<Integer> constrainedParamRegisters = new HashSet();
+	protected MethodReference probeMethRef;
 
-	public MethodTransformer(Method method)
-	{
-		this.method = method;
-	}
+	protected abstract void preinstrument(Method method, MutableMethodImplementation code);
+
+	protected abstract void instrument(Method method, MutableMethodImplementation code, int probeRegister);
+
+	protected abstract int numRegistersToAdd();
+
+	protected abstract String probeMethName();
 	
-	public MethodImplementation transform()
+	protected abstract String recorderClassName();
+	
+	protected void setProbeMethRef(MethodReference probeMethRef)
 	{
-		MethodImplementation code = method.getImplementation();
-        if (code == null)
-            throw new RuntimeException("error: no code for method "+ method.getName());
-
-		numRegisters = code.getRegisterCount();
-        numParameterRegisters = MethodUtil.getParameterRegisterCount(method);
-		numNonParameterRegisters = numRegisters - numParameterRegisters;
-
-		//System.out.println("numRegisters = "+numRegisters+" numParameterRegisters = "+ numParameterRegisters);
-
-		//for (Instruction instruction : code.getInstructions()) {
-		//	visit(instruction);
-        //}
-
-		numParamRegistersToClone = numParameterRegisters;
-		
-		//if(numParamRegistersToClone > 0)
-		//	System.out.println("numParamRegistersToClone: "+numParamRegistersToClone);
-
-		// add (numParamRegistersToClone + 1) new registers
-		// +1 represents the register that we will use to store coverage id
-		// at [numNonParameterRegisters...(numNonParameterRegister+numParamRegistersToClone)]
-		
-		numNewRegisters = numParamRegistersToClone + 1;
-
-		/*
-		for (Instruction instruction : code.getInstructions()) {
-			if(!update(instruction)){
-				System.out.println("notok");
-				System.out.println(instruction.getOpcode().name);
-				List<Integer> regs = Util.getUsedRegistersNums(instruction);
-				System.out.print("regs: ");
-				for(Integer r : regs){
-					System.out.print(r+" ");
-				}
-				System.out.println("");
-				
-			}
-        }
-		*/
-
-		return modifyMethod(code);
+		this.probeMethRef = probeMethRef;
 	}
 
-	private MethodImplementation modifyMethod(MethodImplementation implementation) 
-	{
-        MutableMethodImplementation impl = new MutableMethodImplementation(implementation, numNewRegisters + numRegisters);
-		/*
-		List<Instruction> instructions = mutableImplementation.getInstructions();
- 
-        for (int i=0; i<instructions.size(); i++) {
-            Instruction instruction = instructions.get(i);
-			Instruction newInstruction = modifyInstruction(instruction);
-			mutableImplementation.replaceInstruction(i, newInstruction);
-		} 
-		*/
-		
-		//assuming for now that we clone every parameter register
-		//for(int i = 0; i < numParameterRegisters; i++){
-
-		int dest = numNonParameterRegisters;
-		
-		if(!MethodUtil.isStatic(method)){
-			impl.addInstruction(0, moveRegister(dest, dest + numNewRegisters, Opcode.MOVE_OBJECT));
-			dest++;
-		}
-
-		for(CharSequence paramType : method.getParameterTypes()){
-			BuilderInstruction newInstruction;
-			int firstChar = paramType.charAt(0);
-            if (firstChar == 'J' || firstChar == 'D') {
-				newInstruction = moveRegister(dest, dest + numNewRegisters, Opcode.MOVE_WIDE);
-				dest += 2;
-			} else {
-				if(firstChar == '[' || firstChar == 'L')
-					newInstruction = moveRegister(dest, dest + numNewRegisters, Opcode.MOVE_OBJECT);
-				else
-					newInstruction = moveRegister(dest, dest + numNewRegisters, Opcode.MOVE);
-				dest++;
-			}
-			impl.addInstruction(0, newInstruction);
-		}
-
-		int id = CoverageId.g().idFor(Util.signatureOf(method));
-		int probeIdNumBits = numBits(dest);
-		if(probeIdNumBits == 4){
-			impl.addInstruction(0, new BuilderInstruction35c(Opcode.INVOKE_STATIC, 1, dest, 0, 0, 0, 0, Instrument.probeMethRef));
-		} else {
-			impl.addInstruction(0, new BuilderInstruction3rc(Opcode.INVOKE_STATIC_RANGE, dest, 1, Instrument.probeMethRef));
-		}
-		if(probeIdNumBits <= 8)
-			impl.addInstruction(0, new BuilderInstruction31i(Opcode.CONST, dest, id));
-		else
-			throw new RuntimeException("TODO: Did not find a 8-bit reg to store the probe id");
-        return impl;
-    }
-
-	private BuilderInstruction moveRegister(int dest, int src, Opcode opcode)
-	{
-		int destNumBits = numBits(dest);
-		int srcNumBits = numBits(src);
-
-		if(destNumBits == 4)
-			if(srcNumBits == 4)
-				return new BuilderInstruction12x(opcode, dest, src);
-			else
-				return new BuilderInstruction22x(opcode_FROM16(opcode), dest, src);
-		if(destNumBits == 8)
-			return new BuilderInstruction22x(opcode_FROM16(opcode), dest, src);
-		if(destNumBits == 16)
-			return new BuilderInstruction32x(opcode_16(opcode), dest, src);
-		throw new RuntimeException("Unexpected: "+destNumBits+" "+srcNumBits);
-	}
-
-	private Opcode opcode_FROM16(Opcode opcode)
-	{
-		switch(opcode){
-		case MOVE:
-			return Opcode.MOVE_FROM16;
-		case MOVE_OBJECT:
-			return Opcode.MOVE_OBJECT_FROM16;
-		case MOVE_WIDE:
-			return Opcode.MOVE_WIDE_FROM16;
-		default:
-			throw new RuntimeException("unexpected "+ opcode);
-		}
-	}
-
-	private Opcode opcode_16(Opcode opcode)
-	{
-		switch(opcode){
-		case MOVE:
-			return Opcode.MOVE_16;
-		case MOVE_OBJECT:
-			return Opcode.MOVE_OBJECT_16;
-		case MOVE_WIDE:
-			return Opcode.MOVE_WIDE_16;
-		default:
-			throw new RuntimeException("unexpected "+ opcode);
-		}
-	}
-
-	private int numBits(int reg)
-	{
-		if(reg < 0x0000000F)
-			return 4;
-		else if(reg < 0x000000FF)
-			return 8;
-		else if(reg < 0x0000FFFF)
-			return 16;
-		else 
-			throw new RuntimeException("More than 16 bits is required to encode register "+reg);
-	}
-
+	/*
 	private boolean isInRange(int reg, int numBits)
 	{
 		assert numBits == 4 || numBits == 8 || numBits == 16 : numBits+"";
@@ -290,7 +143,7 @@ public class MethodTransformer
 			return oldReg + numNewRegisters;
 		}
 	}
-
+	*/
 
 
 	public void visit(Instruction i)

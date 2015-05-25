@@ -13,9 +13,13 @@ import java.io.File;
 import java.security.MessageDigest;
 import java.util.*;
 
+/*
+ * @author Saswat Anand
+ */
 public class Util
 {
-	public static String signatureOf(Method method)
+	//TODO: replace the use of this with the following one
+	public static String signatureOf0(Method method)
 	{
 		StringBuilder builder = new StringBuilder();
 		builder.append("<")
@@ -28,6 +32,21 @@ public class Util
 		for(CharSequence paramType : method.getParameterTypes())
 			builder.append(paramType);
 		builder.append(")>");
+		return builder.toString();
+	}
+
+	public static String signatureOf(Method method)
+	{
+		StringBuilder builder = new StringBuilder();
+		builder
+			.append(method.getName())
+			.append("(");
+		for(CharSequence paramType : method.getParameterTypes())
+			builder.append(paramType);
+		builder.append(")");
+		builder.append(method.getReturnType());
+		builder.append("@");
+		builder.append(method.getDefiningClass());
 		return builder.toString();
 	}
 
