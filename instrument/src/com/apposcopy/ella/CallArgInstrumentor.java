@@ -49,11 +49,14 @@ public class CallArgInstrumentor extends MethodInstrumentor
 			BufferedReader reader = new BufferedReader(new FileReader(instrInfoFileName));
 			String line;
 			while((line = reader.readLine()) != null){
+				line = line.trim();
+				if(!line.startsWith("METHCALLARG "))
+					continue;
 				String[] tokens = line.split(" ");
-				String methSig = tokens[0];
-				int offset = Integer.parseInt(tokens[1]);
-				int argIndex = Integer.parseInt(tokens[2]);
-				int metadata = Integer.parseInt(tokens[3]);
+				String methSig = tokens[1];
+				int offset = Integer.parseInt(tokens[2]);
+				int argIndex = Integer.parseInt(tokens[3]);
+				int metadata = Integer.parseInt(tokens[4]);
 				Trio trio = new Trio(offset, argIndex, metadata);
 				
 				List<Trio> trios = instrInfo.get(methSig);
