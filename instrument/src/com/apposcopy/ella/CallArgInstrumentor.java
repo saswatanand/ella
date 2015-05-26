@@ -129,13 +129,13 @@ public class CallArgInstrumentor extends MethodInstrumentor
 			if(trio.argIndex >= 0){
 				if(instruction instanceof Instruction35c){
 					Instruction35c invkInstruction = (Instruction35c) instruction;
-					Method callee = (Method) invkInstruction.getReference();
+					MethodReference callee = (MethodReference) invkInstruction.getReference();
 					CharSequence paramType;
-					
-					if(!MethodUtil.isStatic(callee) && trio.argIndex == 0)
+					boolean isStatic = instruction.getOpcode() == Opcode.INVOKE_STATIC;
+					if(!isStatic && trio.argIndex == 0)
 						refType = true; //this parameter
 					else {
-						if(MethodUtil.isStatic(callee))
+						if(isStatic)
 							paramType = callee.getParameterTypes().get(trio.argIndex);
 						else
 							paramType = callee.getParameterTypes().get(trio.argIndex-1);
@@ -169,12 +169,13 @@ public class CallArgInstrumentor extends MethodInstrumentor
 				} else if(instruction instanceof Instruction3rc){
 					Instruction3rc invkInstruction = (Instruction3rc) instruction;
 					assert trio.argIndex < invkInstruction.getRegisterCount();
-					Method callee = (Method) invkInstruction.getReference();
+					MethodReference callee = (MethodReference) invkInstruction.getReference();
 					argRegister = invkInstruction.getStartRegister();
-					if(!MethodUtil.isStatic(callee) && trio.argIndex == 0)
+					boolean isStatic = instruction.getOpcode() == Opcode.INVOKE_STATIC_RANGE;
+					if(!isStatic && trio.argIndex == 0)
 						refType = true;
 					else {
-						int argCount = MethodUtil.isStatic(callee) ? 0 : 1;
+						int argCount = isStatic ? 0 : 1;
 						for(CharSequence paramType : callee.getParameterTypes()){
 							int firstChar = paramType.charAt(0);
 							argRegister += ((firstChar == 'J' || firstChar == 'D') ? 2 : 1);
