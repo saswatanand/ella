@@ -40,7 +40,7 @@ public class Ella
 		recorder.m(mId);
 	}
 
-	public static void v(Object obj, int metadata)
+	public static void v(int metadata, Object obj)
 	{
 		recorder.v(obj, metadata);
 	}

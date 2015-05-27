@@ -109,6 +109,14 @@ public class CallArgInstrumentor extends MethodInstrumentor
 					}
 					if((i instanceof Instruction35c) || (i instanceof Instruction3rc)){
 						trioToInstruction.put(trio, i);
+						if(trio.argIndex == -1){
+							BuilderInstruction nextInstruction = instructions.get(i.getLocation().getIndex()+1);
+							Opcode opcode = nextInstruction.getOpcode();
+							assert (nextInstruction instanceof Instruction11x) &&
+								(opcode == Opcode.MOVE_RESULT ||
+								 opcode == Opcode.MOVE_RESULT_WIDE ||
+								 opcode == Opcode.MOVE_RESULT_OBJECT) : nextInstruction+ " "+opcode;
+						}
 					} 	
 					else
 						assert false : i.toString() + " "+i.getOpcode();
@@ -126,6 +134,7 @@ public class CallArgInstrumentor extends MethodInstrumentor
 			int argRegister = -1;
 			boolean refType = false;
 			boolean wideType = false;
+			int indexToInsertAt = -1;
 			if(trio.argIndex >= 0){
 				if(instruction instanceof Instruction35c){
 					Instruction35c invkInstruction = (Instruction35c) instruction;
@@ -178,7 +187,6 @@ public class CallArgInstrumentor extends MethodInstrumentor
 						int argCount = isStatic ? 0 : 1;
 						for(CharSequence paramType : callee.getParameterTypes()){
 							int firstChar = paramType.charAt(0);
-							argRegister += ((firstChar == 'J' || firstChar == 'D') ? 2 : 1);
 							if(argCount == trio.argIndex){
 								if(firstChar == 'J' || firstChar == 'D')
 									wideType = true;
@@ -186,42 +194,40 @@ public class CallArgInstrumentor extends MethodInstrumentor
 									refType = true;
 								break;
 							}
+							argRegister += ((firstChar == 'J' || firstChar == 'D') ? 2 : 1);
 						}
 					}
 				}
-			}
-
-			int index = instruction.getLocation().getIndex();
-			index++;
-			//check if the next instruction is a move-result*
-			BuilderInstruction nextInstruction = code.getInstructions().get(index);
-			int resultReg = -1;
-			if(nextInstruction instanceof Instruction11x){
+				indexToInsertAt = instruction.getLocation().getIndex();
+			} else if(trio.argIndex == -1){
+				BuilderInstruction nextInstruction = code.getInstructions().get(instruction.getLocation().getIndex() + 1);
 				Opcode opcode = nextInstruction.getOpcode();
-				if(opcode == Opcode.MOVE_RESULT ||
-				   opcode == Opcode.MOVE_RESULT_WIDE ||
-				   opcode == Opcode.MOVE_RESULT_OBJECT){
-					index++;
-					if(trio.argIndex == -1){
-						argRegister = ((Instruction11x) nextInstruction).getRegisterA();
-						wideType = opcode ==  Opcode.MOVE_RESULT_WIDE;
-						refType = opcode == Opcode.MOVE_RESULT_OBJECT;
-					}
-				}
+				assert (nextInstruction instanceof Instruction11x) &&
+					(opcode == Opcode.MOVE_RESULT ||
+					 opcode == Opcode.MOVE_RESULT_WIDE ||
+					 opcode == Opcode.MOVE_RESULT_OBJECT) : nextInstruction+ " "+opcode;
+					
+				argRegister = ((Instruction11x) nextInstruction).getRegisterA();
+				wideType = opcode ==  Opcode.MOVE_RESULT_WIDE;
+				refType = opcode == Opcode.MOVE_RESULT_OBJECT;
+				indexToInsertAt = nextInstruction.getLocation().getIndex() + 1;
 			}
-			
+			else
+				assert false : String.valueOf(trio.argIndex);
+
 			assert argRegister >= 0;
 			assert !wideType || !refType;
-			
+			assert indexToInsertAt >= 0;
+
 			//insert the probe statement at index
 			int probeIdNumBits = Instrument.numBits(probeRegister);
 			if(probeIdNumBits <= 8)
-				code.addInstruction(index, new BuilderInstruction31i(Opcode.CONST, probeRegister, trio.metadata));
+				code.addInstruction(indexToInsertAt, new BuilderInstruction31i(Opcode.CONST, probeRegister, trio.metadata));
 			else
 				throw new RuntimeException("TODO: Did not find a register in the range [0..2^8] to store the probe id");
 
 			if(probeIdNumBits == 4 && Instrument.numBits(argRegister) == 4){
-				code.addInstruction(index+1, new BuilderInstruction35c(Opcode.INVOKE_STATIC, 2, probeRegister, argRegister, 0, 0, 0, probeMethRef));
+				code.addInstruction(indexToInsertAt+1, new BuilderInstruction35c(Opcode.INVOKE_STATIC, 2, probeRegister, argRegister, 0, 0, 0, probeMethRef));
 			} else {
 				//move the content of argRegister to the register with index probeRegister+1
 				Opcode opcode;
@@ -233,8 +239,8 @@ public class CallArgInstrumentor extends MethodInstrumentor
 					opcode = Opcode.MOVE_OBJECT;
 				else
 					opcode = Opcode.MOVE;
-				code.addInstruction(index+1, Instrument.moveRegister(probeRegister+1, argRegister, opcode));
-				code.addInstruction(index+2, new BuilderInstruction3rc(Opcode.INVOKE_STATIC_RANGE, probeRegister, numArgRegs, probeMethRef));
+				code.addInstruction(indexToInsertAt+1, Instrument.moveRegister(probeRegister+1, argRegister, opcode));
+				code.addInstruction(indexToInsertAt+2, new BuilderInstruction3rc(Opcode.INVOKE_STATIC_RANGE, probeRegister, numArgRegs, probeMethRef));
 			}
 		}
 	}
