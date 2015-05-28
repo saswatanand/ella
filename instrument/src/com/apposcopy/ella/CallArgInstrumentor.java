@@ -101,11 +101,10 @@ public class CallArgInstrumentor extends MethodInstrumentor
 				if(codeAddress == trio.offset){
 					if(i instanceof Instruction11x){
 						Opcode opcode = i.getOpcode();
-						if(opcode == Opcode.MOVE_RESULT ||
-						   opcode == Opcode.MOVE_RESULT_WIDE ||
-						   opcode == Opcode.MOVE_RESULT_OBJECT){
-							i = instructions.get(loc.getIndex()-1);
-						}
+						assert (opcode == Opcode.MOVE_RESULT ||
+								opcode == Opcode.MOVE_RESULT_WIDE ||
+								opcode == Opcode.MOVE_RESULT_OBJECT) : opcode.toString();
+						i = instructions.get(loc.getIndex()-1);
 					}
 					if((i instanceof Instruction35c) || (i instanceof Instruction3rc)){
 						trioToInstruction.put(trio, i);
@@ -136,9 +135,10 @@ public class CallArgInstrumentor extends MethodInstrumentor
 			boolean wideType = false;
 			int indexToInsertAt = -1;
 			if(trio.argIndex >= 0){
+				MethodReference callee = null;
 				if(instruction instanceof Instruction35c){
 					Instruction35c invkInstruction = (Instruction35c) instruction;
-					MethodReference callee = (MethodReference) invkInstruction.getReference();
+					callee = (MethodReference) invkInstruction.getReference();
 					CharSequence paramType;
 					boolean isStatic = instruction.getOpcode() == Opcode.INVOKE_STATIC;
 					if(!isStatic && trio.argIndex == 0)
@@ -162,7 +162,7 @@ public class CallArgInstrumentor extends MethodInstrumentor
 						break;
 					case 1: 
 						argRegister = invkInstruction.getRegisterD();
-					break;
+						break;
 					case 2:
 						argRegister = invkInstruction.getRegisterE();
 						break;
@@ -178,7 +178,7 @@ public class CallArgInstrumentor extends MethodInstrumentor
 				} else if(instruction instanceof Instruction3rc){
 					Instruction3rc invkInstruction = (Instruction3rc) instruction;
 					assert trio.argIndex < invkInstruction.getRegisterCount();
-					MethodReference callee = (MethodReference) invkInstruction.getReference();
+					callee = (MethodReference) invkInstruction.getReference();
 					argRegister = invkInstruction.getStartRegister();
 					boolean isStatic = instruction.getOpcode() == Opcode.INVOKE_STATIC_RANGE;
 					if(!isStatic && trio.argIndex == 0)
@@ -194,11 +194,17 @@ public class CallArgInstrumentor extends MethodInstrumentor
 									refType = true;
 								break;
 							}
+							argCount++;
 							argRegister += ((firstChar == 'J' || firstChar == 'D') ? 2 : 1);
 						}
 					}
-				}
-				indexToInsertAt = instruction.getLocation().getIndex();
+				} else
+					assert false : instruction +" "+ instruction.getOpcode();
+				if(callee.getName().equals("<init>") && trio.argIndex == 0)
+					//after the invoke instruction, otherwise the var is uninitialized
+					indexToInsertAt = instruction.getLocation().getIndex()+1;
+				else
+					indexToInsertAt = instruction.getLocation().getIndex();  //before the invoke instruction
 			} else if(trio.argIndex == -1){
 				BuilderInstruction nextInstruction = code.getInstructions().get(instruction.getLocation().getIndex() + 1);
 				Opcode opcode = nextInstruction.getOpcode();

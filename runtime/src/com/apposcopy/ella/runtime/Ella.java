@@ -81,6 +81,10 @@ public class Ella
 		public void uploadCoverage() throws IOException
 		{
 			String payload = recorder.data();
+			if(payload.length() == 0){
+				Log.d("ella", "no data to upload");
+				return;
+			}
 			JSONObject json = new JSONObject();
 			try {
 				json.put("id",id);
