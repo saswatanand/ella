@@ -89,16 +89,16 @@ public class MethodParamInstrumentor extends MethodInstrumentor
 		if(pairs == null)
 			return;
 
-		int argRegister = code.getRegisterCount() - MethodUtil.getParameterRegisterCount(method);
+		int paramRegister = code.getRegisterCount() - MethodUtil.getParameterRegisterCount(method);
 		
 		int paramIndex = 0;
 		if(!MethodUtil.isStatic(method)){
 			for(Pair pair : pairs){
 				if(pair.paramIndex == paramIndex){
-					addInstruction(code, argRegister, probeRegister, pair.metadata, false, true);
+					addInstruction(code, paramRegister, probeRegister, pair.metadata, false, true);
 				}
 			}
-			argRegister++;
+			paramRegister++;
 			paramIndex++;
 		}
 
@@ -112,15 +112,15 @@ public class MethodParamInstrumentor extends MethodInstrumentor
 				refType = true;
 			for(Pair pair : pairs){
 				if(pair.paramIndex == paramIndex){
-					addInstruction(code, argRegister, probeRegister, pair.metadata, wideType, refType);
+					addInstruction(code, paramRegister, probeRegister, pair.metadata, wideType, refType);
 				}
 			}
-			argRegister += (wideType ? 2 : 1);
+			paramRegister += (wideType ? 2 : 1);
 			paramIndex++;
 		}
 	}
 	
-	private void addInstruction(MutableMethodImplementation code, int argRegister, int probeRegister, int metadata, boolean wideType, boolean refType)
+	private void addInstruction(MutableMethodImplementation code, int paramRegister, int probeRegister, int metadata, boolean wideType, boolean refType)
 	{
 		int probeIdNumBits = Instrument.numBits(probeRegister);
 		if(probeIdNumBits <= 8)
@@ -128,10 +128,10 @@ public class MethodParamInstrumentor extends MethodInstrumentor
 		else
 				throw new RuntimeException("TODO: Did not find a register in the range [0..2^8] to store the probe id");
 		
-		if(probeIdNumBits == 4 && Instrument.numBits(argRegister) == 4){
-			code.addInstruction(1, new BuilderInstruction35c(Opcode.INVOKE_STATIC, 2, probeRegister, argRegister, 0, 0, 0, probeMethRef));
+		if(probeIdNumBits == 4 && Instrument.numBits(paramRegister) == 4){
+			code.addInstruction(1, new BuilderInstruction35c(Opcode.INVOKE_STATIC, 2, probeRegister, paramRegister, 0, 0, 0, probeMethRef));
 		} else {
-			//move the content of argRegister to the register with index probeRegister+1
+			//move the content of paramRegister to the register with index probeRegister+1
 			Opcode opcode;
 			int numArgRegs = 2;
 			if(wideType){
@@ -141,7 +141,7 @@ public class MethodParamInstrumentor extends MethodInstrumentor
 				opcode = Opcode.MOVE_OBJECT;
 			else
 				opcode = Opcode.MOVE;
-			code.addInstruction(1, Instrument.moveRegister(probeRegister+1, argRegister, opcode));
+			code.addInstruction(1, Instrument.moveRegister(probeRegister+1, paramRegister, opcode));
 			code.addInstruction(2, new BuilderInstruction3rc(Opcode.INVOKE_STATIC_RANGE, probeRegister, numArgRegs, probeMethRef));
 		}
 	}
