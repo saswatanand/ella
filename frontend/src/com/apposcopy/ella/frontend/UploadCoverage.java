@@ -54,6 +54,7 @@ public class UploadCoverage extends HttpServlet
             while ((s = request.getReader().readLine()) != null) {
                 sb.append(s);
             }
+			//System.out.println("request: "+sb.toString());
 			CoverageUpdate covUpdate = (CoverageUpdate) gson.fromJson(sb.toString(), CoverageUpdate.class);
 			
 			String ellaOutDir = getServletContext().getInitParameter("ella.outdir");
@@ -93,6 +94,10 @@ public class UploadCoverage extends HttpServlet
 			logger.log(Level.SEVERE, "Problems during file upload. Error: {0}", 
 					   new Object[]{fne.getMessage()});
 			response.setStatus(400);
+		} catch(Exception e){
+			System.out.println(e.getMessage());
+			e.printStackTrace();
+			throw e;
 		} finally {
 			if (out != null) {
 				out.close();

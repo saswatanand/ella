@@ -107,6 +107,7 @@ public class Ella
 
 				OutputStream out = new BufferedOutputStream(urlConnection.getOutputStream());
 				out.write(jsonString.getBytes(java.nio.charset.Charset.forName("UTF-8")));
+				out.flush();
 
 				int responseCode = urlConnection.getResponseCode();
 				if(responseCode == 200)
