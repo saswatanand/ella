@@ -97,7 +97,7 @@ public class UploadCoverage extends HttpServlet
 		} catch(Exception e){
 			System.out.println(e.getMessage());
 			e.printStackTrace();
-			throw e;
+			throw new Error(e);
 		} finally {
 			if (out != null) {
 				out.close();
