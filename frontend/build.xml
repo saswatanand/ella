@@ -40,15 +40,19 @@
     </javac>
   </target>
 
-  <condition property="web.xml.exists">
+  <!--condition property="web.xml.exists">
 	<resourceexists>
 	  <file file="WebContent/web.xml"/>
 	</resourceexists>
-  </condition>
-  
-  <target name="-create-web.xml" unless="${web.xml.exists}">
+  </condition-->
+
+  <target name="-check-web.xml-update">
+	<uptodate property="web.xml.uptodate" targetfile="web.xml" srcfile="${ella.dir}/ella.settings"/>
+  </target>
+
+  <target name="-create-web.xml" depends="-check-web.xml-update" unless="${web.xml.uptodate}">
 	<copy file="web_template.xml" 
-		  tofile="web.xml"/>
+		  tofile="web.xml" overwrite="true"/>
 	 <replace file="web.xml" token="###ella.outdir###" value="${ella.outdir}"/>
   </target>
 
