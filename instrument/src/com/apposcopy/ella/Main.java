@@ -127,6 +127,11 @@ public class Main
 			actionElement.setAttribute("android:name", "com.apposcopy.ella.COVERAGE");
 			filterElement.appendChild(actionElement);
 
+			//add internet permission
+			Element permissionElement = document.createElement("uses-permission");
+			permissionElement.setAttribute("android:name", "android.permission.INTERNET");
+			applicationNode.getParentNode().appendChild(permissionElement);
+
 			/*
 			//insert ella upload service
 			Element svcElement = document.createElement("service");
