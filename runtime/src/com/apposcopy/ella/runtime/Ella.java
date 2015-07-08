@@ -1,6 +1,7 @@
 package com.apposcopy.ella.runtime;
 
 import android.util.Log;
+import android.os.Debug;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -12,27 +13,18 @@ import org.json.JSONException;
 
 public class Ella
 {
-	//instrumentation will set values of the following three fields
+	//instrumentation will set values of the following four fields
 	private static String id; 
 	private static String recorderClassName;
 	private static String uploadUrl;
+	private static boolean useAndroidDebug;
 
 	private static final int UPLOAD_TIME_PERIOD = 500;
 	private static Recorder recorder;
 	private static UploadThread uploadThread;
 
 	static {
-		try{
-			recorder = (Recorder) Class.forName(recorderClassName).newInstance();			
-			uploadThread = new UploadThread();
-			uploadThread.start();
-		} catch(ClassNotFoundException e){
-			throw new Error(e);
-		} catch(InstantiationException e){
-			throw new Error(e);
-		} catch(IllegalAccessException e){
-			throw new Error(e);
-		} 
+		startRecording();
 	}
 
 	public static void m(int mId)
@@ -45,9 +37,28 @@ public class Ella
 		recorder.v(obj, metadata);
 	}
 
+	static void startRecording()
+	{
+		try{
+			recorder = (Recorder) Class.forName(recorderClassName).newInstance();	
+			uploadThread = new UploadThread();
+			uploadThread.start();
+		} catch(ClassNotFoundException e){
+			throw new Error(e);
+		} catch(InstantiationException e){
+			throw new Error(e);
+		} catch(IllegalAccessException e){
+			throw new Error(e);
+		} 
+		if(useAndroidDebug)
+			Debug.startMethodTracing();
+	}
+
 	static void stopRecording()
 	{
 		uploadThread.stop = true;
+		if(useAndroidDebug)
+			Debug.stopMethodTracing();
 	}
 	
 	private static class UploadThread extends Thread

@@ -21,6 +21,7 @@ public class Config
 	public String keyPass;
 	public String alias;
 	public String instrumentorClassNames;
+	public boolean useAndroidDebug;
 	public final Map<String,String> extras = new HashMap();
 
 	private static Config g;
@@ -90,6 +91,8 @@ public class Config
 		}
 		
 		instrumentorClassNames = props.getProperty("ella.instrumentor", "com.apposcopy.ella.MethodCoverageInstrumentor").trim();
+		
+		useAndroidDebug = props.getProperty("ella.android.debug","false").equals("true");
 	}
 
 	String outDir()

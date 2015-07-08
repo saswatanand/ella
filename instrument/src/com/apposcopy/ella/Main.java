@@ -131,6 +131,14 @@ public class Main
 			Element permissionElement = document.createElement("uses-permission");
 			permissionElement.setAttribute("android:name", "android.permission.INTERNET");
 			applicationNode.getParentNode().appendChild(permissionElement);
+			
+			if(Config.g().useAndroidDebug){
+				//add external-storage write permission
+				permissionElement = document.createElement("uses-permission");
+				permissionElement.setAttribute("android:name", "android.permission.WRITE_EXTERNAL_STORAGE");
+				applicationNode.getParentNode().appendChild(permissionElement);
+			}
+				
 
 			/*
 			//insert ella upload service

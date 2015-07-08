@@ -287,6 +287,15 @@ public class Instrument
 			}
 		}		
 
+		//get the reference to the "private static boolean useAndroidDebug" field
+		Field useAndroidDebugField = null;
+		for(Field f : classDef.getStaticFields()){
+			if(f.getName().equals("useAndroidDebug")){
+				useAndroidDebugField = f;
+				break;
+			}
+		}		
+
 		MutableMethodImplementation newCode = new MutableMethodImplementation(code, regCount+1);
 
 		assert recorderClassName != null;
@@ -298,6 +307,9 @@ public class Instrument
 
 		newCode.addInstruction(0, new BuilderInstruction21c(Opcode.SPUT_OBJECT, regCount, uploadUrlField));
 		newCode.addInstruction(0, new BuilderInstruction21c(Opcode.CONST_STRING, regCount, new ImmutableStringReference(Config.g().tomcatUrl+"/ella/uploadcoverage")));
+
+		newCode.addInstruction(0, new BuilderInstruction21c(Opcode.SPUT_BOOLEAN, regCount, useAndroidDebugField));
+		newCode.addInstruction(0, new BuilderInstruction11n(Opcode.CONST_4, regCount, (Config.g().useAndroidDebug ? 1 : 0)));
 
 		return newCode;
 	}
