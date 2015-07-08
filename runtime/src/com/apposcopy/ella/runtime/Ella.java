@@ -23,6 +23,9 @@ public class Ella
 	private static Recorder recorder;
 	private static UploadThread uploadThread;
 
+	private static final int TRACERECORD_TIME_PERIOD = 5000;
+	private static TraceRecordingThread traceRecordingThread;
+
 	static {
 		startRecording();
 	}
@@ -50,17 +53,44 @@ public class Ella
 		} catch(IllegalAccessException e){
 			throw new Error(e);
 		} 
-		if(useAndroidDebug)
-			Debug.startMethodTracing();
+		
+		if(useAndroidDebug){
+			traceRecordingThread = new TraceRecordingThread();
+			traceRecordingThread.start();
+		}
 	}
 
 	static void stopRecording()
 	{
 		uploadThread.stop = true;
-		if(useAndroidDebug)
-			Debug.stopMethodTracing();
+		if(traceRecordingThread != null)
+			traceRecordingThread.stop = true;
 	}
-	
+
+	private static class TraceRecordingThread extends Thread
+	{
+		private boolean stop = false;
+
+		TraceRecordingThread()
+		{
+			super();
+		}
+		
+		public void run()
+		{
+			int count = 1;
+			while(!stop){
+				try{
+					Debug.startMethodTracing("trace."+count++);
+					sleep(TRACERECORD_TIME_PERIOD);					
+					Debug.stopMethodTracing();
+				}catch(InterruptedException e){
+					break;
+				}
+			}
+		}
+	}
+
 	private static class UploadThread extends Thread
 	{
 		private boolean stop = false;
@@ -75,9 +105,7 @@ public class Ella
 		{
 			while(!stop){
 				try{
-					sleep(UPLOAD_TIME_PERIOD);
-					// If continuous coverage reporting is supported, 
-					// send an update to the server
+					sleep(UPLOAD_TIME_PERIOD);					
 					try{
 						uploadCoverage();
 					}catch(IOException e){
