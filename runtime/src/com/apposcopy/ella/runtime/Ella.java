@@ -7,6 +7,8 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 
 import org.json.JSONObject;
 import org.json.JSONException;
@@ -79,9 +81,24 @@ public class Ella
 		public void run()
 		{
 			int count = 1;
+			String traceDirName = "/sdcard/debug.traces";
+			File traceDir = new File(traceDirName);
+			if(traceDir.exists()){
+				if(traceDir.isDirectory()){
+					for(File tf : traceDir.listFiles())
+						tf.delete();
+				} else {
+					Log.d("ella", "Deleting existing file named "+traceDirName);
+					traceDir.delete();
+					traceDir.mkdir();
+				}
+			} else
+				traceDir.mkdir();
 			while(!stop){
 				try{
-					Debug.startMethodTracing("trace."+count++);
+					DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+					String traceFileName = traceDirName+"/"+dateFormat.format(new Date());
+					Debug.startMethodTracing(traceFileName);
 					sleep(TRACERECORD_TIME_PERIOD);					
 					Debug.stopMethodTracing();
 				}catch(InterruptedException e){
