@@ -2,6 +2,7 @@ package com.apposcopy.ella.runtime;
 
 import android.util.Log;
 import android.os.Debug;
+import android.os.SystemClock;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -27,6 +28,8 @@ public class Ella
 
 	private static final int TRACERECORD_TIME_PERIOD = 5000;
 	private static TraceRecordingThread traceRecordingThread;
+	private static long overhead = 0L;
+	private static int vCount = 0;
 
 	static {
 		startRecording();
@@ -39,7 +42,11 @@ public class Ella
 
 	public static void v(int metadata, Object obj)
 	{
+		long start = SystemClock.uptimeMillis();
 		recorder.v(obj, metadata);
+		long elapsedTime = SystemClock.uptimeMillis() - start;
+		overhead += elapsedTime;
+		vCount++;
 	}
 
 	static void startRecording()
@@ -83,24 +90,37 @@ public class Ella
 			int count = 1;
 			String traceDirName = "/sdcard/debug.traces";
 			File traceDir = new File(traceDirName);
-			if(traceDir.exists()){
-				if(traceDir.isDirectory()){
-					for(File tf : traceDir.listFiles())
-						tf.delete();
-				} else {
-					Log.d("ella", "Deleting existing file named "+traceDirName);
-					traceDir.delete();
-					traceDir.mkdir();
-				}
-			} else
+			File f = new File(traceDirName, "ella.txt");
+			if(!traceDir.exists()){
 				traceDir.mkdir();
+				try{
+					FileWriter fw = new FileWriter(f);
+					fw.close();
+				} catch(IOException e){
+					Log.e("ella", "Error in creating ella.txt");
+				}
+			}
 			while(!stop){
 				try{
 					DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
 					String traceFileName = traceDirName+"/"+dateFormat.format(new Date());
 					Debug.startMethodTracing(traceFileName);
+					
+					vCount = 0;
+					overhead = 0L;
+					
 					sleep(TRACERECORD_TIME_PERIOD);					
+
 					Debug.stopMethodTracing();
+					
+					try{
+						FileWriter fw = new FileWriter(f, true);
+						String info = overhead+" "+vCount+"\n";
+						fw.write(info, 0, info.length());
+						fw.close();
+					} catch(IOException e){
+						Log.e("ella", "Error in dumping ella overhead");
+					}
 				}catch(InterruptedException e){
 					break;
 				}
