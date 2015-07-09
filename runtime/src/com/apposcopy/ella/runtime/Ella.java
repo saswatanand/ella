@@ -4,6 +4,8 @@ import android.util.Log;
 import android.os.Debug;
 import android.os.SystemClock;
 
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -28,8 +30,8 @@ public class Ella
 
 	private static final int TRACERECORD_TIME_PERIOD = 5000;
 	private static TraceRecordingThread traceRecordingThread;
-	private static long overhead = 0L;
-	private static int vCount = 0;
+	private static AtomicLong overhead = new AtomicLong(0L);
+	private static AtomicInteger vCount = new AtomicInteger(0);
 
 	static {
 		startRecording();
@@ -45,8 +47,8 @@ public class Ella
 		long start = SystemClock.uptimeMillis();
 		recorder.v(obj, metadata);
 		long elapsedTime = SystemClock.uptimeMillis() - start;
-		overhead += elapsedTime;
-		vCount++;
+		overhead.addAndGet(elapsedTime);
+		vCount.getAndIncrement();
 	}
 
 	static void startRecording()
@@ -106,8 +108,8 @@ public class Ella
 					String traceFileName = traceDirName+"/"+dateFormat.format(new Date());
 					Debug.startMethodTracing(traceFileName);
 					
-					vCount = 0;
-					overhead = 0L;
+					//vCount = 0;
+					//overhead = 0L;
 					
 					sleep(TRACERECORD_TIME_PERIOD);					
 
@@ -115,7 +117,7 @@ public class Ella
 					
 					try{
 						FileWriter fw = new FileWriter(f, true);
-						String info = overhead+" "+vCount+"\n";
+						String info = overhead.getAndSet(0L)+" "+vCount.getAndSet(0)+"\n";
 						fw.write(info, 0, info.length());
 						fw.close();
 					} catch(IOException e){
