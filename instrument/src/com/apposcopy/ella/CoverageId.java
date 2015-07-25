@@ -27,8 +27,7 @@ public class CoverageId
 
 	public void dump() throws IOException
 	{
-		File dumpDir = new File(Config.g().outDir());
-		dumpDir.mkdirs();
+		File dumpDir = new File(Config.g().outDir);
 		
 		BufferedWriter writer = new BufferedWriter(new FileWriter(new File(dumpDir, "covids")));
 		for(String m : meths)

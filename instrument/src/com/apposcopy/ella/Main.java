@@ -21,59 +21,11 @@ public class Main
 {
 	public static void main(String[] args) throws IOException
 	{
-		boolean listClasses = false;
-		String ellaSettingsFile = null;
 		Config config = Config.g();
 
-		int i = 0;
-		while(i < args.length){
-			String a = args[i];
-			if(a.equals("-l")){
-				listClasses = true;
-			} else if(a.equals("-ella.exclude")){
-				config.excludeFile = args[i+1];
-				i++;
-			} else if(a.equals("-ella.dir")){
-				config.ellaDir = args[i+1];
-				i++;				
-			} else if(a.equals("-ella.runtime")){
-				config.ellaRuntime = args[i+1];
-				i++;
-			} else if(a.equals("-ella.settings")){
-				ellaSettingsFile = args[i+1];
-				i++;
-			} else if(a.equals("-ella.apktool")){
-				config.apktoolJar = args[i+1];
-				i++;
-			} else if(a.startsWith("-ella.")){
-				config.extras.put(a.substring(1), args[i+1]);
-				i++;
-			} else if(config.inputFile == null)
-				config.inputFile = a;
-			else{
-				assert config.outputFile == null;
-				config.outputFile = a;
-			}
-			i++;
-		}
-
-		config.load(ellaSettingsFile);
-
-		if(config.inputFile == null){
-			System.out.println("New input file to process");
-			return;
-		}
+		boolean listClasses = args[0].equals("l");
 		
-		File inputFile = new File(config.inputFile);
-		if(!inputFile.exists()){
-			System.out.println("Input file "+config.inputFile+" does not exist.");
-			return;
-		}
-
-		String appPath = inputFile.getCanonicalPath();
-		config.appId = Util.appPathToAppId(appPath);
-
-		App app = App.readApp(config.inputFile, config.outDir(), config.apktoolJar);
+		App app = App.readApp(config.inputFile, config.outDir, config.apktoolJar);
 
 		if(listClasses){
 			app.listClasses();
@@ -81,7 +33,7 @@ public class Main
 		}
 
 		if(config.outputFile == null){
-			config.outputFile = config.outDir()+File.separator+"instrumented.apk";
+			config.outputFile = config.outDir+File.separator+"instrumented.apk";
 		}
 
 		File updatedManifestFile = updateManifest(app.manifestFile());
@@ -102,9 +54,9 @@ public class Main
 		
 		System.out.println("\n********************************************************************************");
 		System.out.println("Coverage data will be stored in the following directory.");
-		System.out.println(config.outDir());
-		System.out.println("View the coverage report at the following URL.");
-		System.out.println(config.tomcatUrl+"/viewcoverage?apppath="+appPath);
+		System.out.println(config.outDir);
+		//System.out.println("View the coverage report at the following URL.");
+		//System.out.println(config.tomcatUrl+"/viewcoverage?apppath="+appPath);
 		System.out.println("********************************************************************************\n");
 	}
 	
@@ -160,3 +112,4 @@ public class Main
 		}
 	}
 }
+

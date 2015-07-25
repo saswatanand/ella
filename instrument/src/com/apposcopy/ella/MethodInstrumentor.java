@@ -39,7 +39,4 @@ public abstract class MethodInstrumentor
 	{
 		this.probeMethRef = probeMethRef;
 	}
-
-	//abcdefghijklmopqrstuvwxyz
-	//rrishi baba mama
 }

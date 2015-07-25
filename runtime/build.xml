@@ -8,10 +8,6 @@
   <property name="jarname" value="${ella.dir}/bin/ella.runtime.jar"/>
   <property name="dexname" value="${ella.dir}/bin/ella.runtime.dex"/>
 
-  <condition property="dx" value="${android.buildtools.dir}/dx" else="dx">
-	<isset property="android.buildtools.dir"/>
-  </condition>
-
   <target name="init">
     <!-- Create the time stamp -->
     <tstamp/>
@@ -22,7 +18,7 @@
   <target name="compile" depends="init"
         description="compile the source " >
     <!-- Compile the java code from ${src} into ${build} -->
-    <javac srcdir="${src}" destdir="${build}" includeantruntime="false" debug="true">
+    <javac srcdir="${src}" destdir="${build}" includeantruntime="false" debug="true" target="1.7">
 	  <classpath>
 		<pathelement location="${android.jar}"/>
 		<!--pathelement location="libs/httpcore-4.3.3.jar"/-->
@@ -32,7 +28,14 @@
   </target>
 
   <target name="dex" depends="jar">
-    <exec executable="${dx}"
+	<javac srcdir="." destdir="." debug="true">
+	  <include name="GuessBuildToolsPathTask.java"/>
+	</javac>
+    <taskdef name="GuessBuildToolsPath"
+			 classname="GuessBuildToolsPathTask"
+			 classpath="."/>
+	<GuessBuildToolsPath/>
+    <exec executable="${android.buildtools.dir}/dx"
           spawn="true">
 	  <arg value="--dex"/>
 	  <arg value="--output"/>
@@ -55,5 +58,6 @@
     <delete dir="${dist}"/>
 	<delete file="${jarname}"/>
 	<delete file="${dexname}"/>
+	<delete file="GuessBuildToolsPathTask.class"/>
   </target>
 </project>

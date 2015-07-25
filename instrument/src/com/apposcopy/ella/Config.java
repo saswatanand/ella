@@ -8,12 +8,11 @@ public class Config
 	public String dxJar;
 	public String zipAlign;
 	public String apktoolJar;
-	public String ellaDir;
 	public String ellaRuntime;
 	public String excludeFile;
 	public String inputFile;
 	public String outputFile;
-	public String ellaOutDir;
+	public String outDir;
 	public String appId;
 	public String tomcatUrl;
 	public String keyStore;
@@ -33,16 +32,31 @@ public class Config
 		return g;
 	}
 
-	private Config(){ }
-
-	void load(String ellaSettingsFile) throws IOException
-	{
+	private Config()
+	{ 
+		String ellaSettingsFile = System.getProperty("ella.settings");
 		Properties props = new Properties();
-		props.load(new FileInputStream(ellaSettingsFile));
+		try{
+			props.load(new FileInputStream(ellaSettingsFile));
+		} catch(Exception e){
+			throw new Error("Error reading internal ella settings file "+ellaSettingsFile+".", e);
+		}
+
+		load(props);
+		loadExtras(props);
+	}
+
+	void load(Properties props)
+	{
+		outDir = props.getProperty("ella.outdir");
+		excludeFile = props.getProperty("ella.exclude");
+		ellaRuntime = props.getProperty("ella.runtime");
+		apktoolJar = props.getProperty("ella.apktool");
+		inputFile = props.getProperty("ella.inputfile");
+		outputFile = props.getProperty("ella.outputfile");
+		appId = props.getProperty("ella.appid");
 
 		String btPath = props.getProperty("android.buildtools.dir");
-		if(btPath == null)
-			btPath = findAndroidBuildToolsPath();
 
 		dxJar = btPath + File.separator + "lib" + File.separator + "dx.jar";
 
@@ -57,65 +71,23 @@ public class Config
 				assert false : zipAlignFile.getPath();
 		}
 			
-
-		ellaOutDir = props.getProperty("ella.outdir", ellaDir+File.separator+"ella-out").trim();
+		keyStore = props.getProperty("ella.jarsigner.keystore");
+		storePass = props.getProperty("ella.jarsigner.storepass");
+		keyPass = props.getProperty("ella.jarsigner.keypass");
+		alias = props.getProperty("ella.jarsigner.alias");
+				
+		tomcatUrl = props.getProperty("ella.tomcat.url");
 		
-		keyStore = props.getProperty("jarsigner.keystore");
-		storePass = props.getProperty("jarsigner.storepass");
-		keyPass = props.getProperty("jarsigner.keypass");
-		alias = props.getProperty("jarsigner.alias");
+		instrumentorClassNames = props.getProperty("ella.instrumentor").trim();
 		
-		if(keyStore != null && storePass != null && keyPass != null && alias != null){
-			keyStore = keyStore.trim();
-			storePass = storePass.trim();
-			keyPass = keyPass.trim();
-			alias = alias.trim();
-		} else {
-			keyStore = ellaDir+File.separator+".android"+File.separator+"debug.keystore";
-			storePass = "android";
-			keyPass = "android";
-			alias = "androiddebugkey";
-		}
-		
-		tomcatUrl = props.getProperty("tomcat.url");
-		if(tomcatUrl != null){
-			tomcatUrl = tomcatUrl.trim();
-			if(!tomcatUrl.startsWith("http://") && !tomcatUrl.startsWith("http://"))
-				throw new RuntimeException("The value of tomcat.url must start with either http:// or https://. Current value: "+tomcatUrl);
-		} else {
-			try{
-				tomcatUrl = "http://"+java.net.InetAddress.getLocalHost().getHostAddress()+":8080";
-			}catch(java.net.UnknownHostException e){
-				throw new Error(e);
-			}
-		}
-		
-		instrumentorClassNames = props.getProperty("ella.instrumentor", "com.apposcopy.ella.MethodCoverageInstrumentor").trim();
-		
-		useAndroidDebug = props.getProperty("ella.android.debug","false").equals("true");
+		useAndroidDebug = props.getProperty("ella.android.debug").equals("true");
 	}
 
-	String outDir()
+	private void loadExtras(Properties props)
 	{
-		String outDir = ellaOutDir + File.separator + appId;
-		new File(outDir).mkdirs();
-		return outDir;
-	}
-
-	public static String findAndroidBuildToolsPath() {
-		String rtn = null;
-		String[] sCmdExts = {""}; //TODO: support windows?
-		StringTokenizer st = new StringTokenizer(System.getenv("PATH"), File.pathSeparator);
-		String path, sFile;
-		while (st.hasMoreTokens()) {
-			path = st.nextToken();
-			for (String sExt : sCmdExts) {
-				sFile = path + File.separator + "dx" + sExt;
-				if (new File(sFile).isFile()) {
-					return path;
-				}
-			}
+		for(String key : props.stringPropertyNames()){
+			if(key.startsWith("ella.x."))
+				extras.put(key, props.getProperty(key));
 		}
-		return null;
 	}
 }

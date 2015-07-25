@@ -10,7 +10,6 @@ import org.jf.dexlib2.iface.instruction.RegisterRangeInstruction;
 import org.jf.dexlib2.util.MethodUtil;
 
 import java.io.File;
-import java.security.MessageDigest;
 import java.util.*;
 
 /*
@@ -130,32 +129,5 @@ public class Util
           for (int i = 0; i < instruction.getRegisterCount(); i++)
               l.add(regs[i]);
           return l;
-      }
-      
-	private static String sha256(String base) {
-		try{
-		    MessageDigest digest = MessageDigest.getInstance("SHA-256");
-		    byte[] hash = digest.digest(base.getBytes("UTF-8"));
-		    StringBuffer hexString = new StringBuffer();
-
-		    for (int i = 0; i < hash.length; i++) {
-		        String hex = Integer.toHexString(0xff & hash[i]);
-		        if(hex.length() == 1) hexString.append('0');
-		        hexString.append(hex);
-		    }
-
-		    return hexString.toString();
-		} catch(Exception ex){
-		   throw new RuntimeException(ex);
-		}
-    }
-    
-    public static String appPathToAppId(String appPath) {
-    	String appId = appPath.replace(File.separatorChar, '_');
-    	if(appId.length() > 100) {
-    		return sha256(appId);
-    	} else {
-    		return appId;
-    	}
-    }
+	}
 }
