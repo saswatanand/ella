@@ -10,31 +10,54 @@ import java.security.MessageDigest;
 public class EllaLauncher
 {
 	private String ellaDir;
-	private Properties props;
+	private Properties settingsProp;
+	private Properties commandLineProp;
 	private String ellaSettingsDir;
 	private String userDir;
+	private String command;
 
 	public static void main(String[] args)
 	{
 		EllaLauncher launcher = new EllaLauncher();
-		launcher.process();
-		launcher.instrument(args[0]);			
+		launcher.setup(args);
+		launcher.instrument();
 	}
 
-	public void process()
+	void setup(String[] args)
 	{
+		commandLineProp = new Properties();
+
+		int i = 0;
+		while(i < args.length){
+			String key = args[i];
+			if(key.startsWith("-")){
+				String value = args[i+1];
+				commandLineProp.put(key.substring(1), value);
+				i++;
+			} else if(command == null){
+				command = key;
+			} else if(commandLineProp.getProperty("ella.inputfile") == null){
+				commandLineProp.put("ella.inputfile", key);
+			} else if(commandLineProp.getProperty("ella.outputfile") == null){
+				commandLineProp.put("ella.outputfile", key);
+			} else {
+				System.out.println("WARN: ignoring commandline argument "+key);
+			}
+			i++;
+		}
+
+
 		ellaDir = findEllaDir();
 		//System.out.println("ella dir: "+ellaDir);
 
-		String ellaSettingsFilePath = System.getProperty("ella.settings");
+		String ellaSettingsFilePath = commandLineProp.getProperty("ella.settings");
 		File ellaSettingsFile = ellaSettingsFilePath == null ? new File(ellaDir, "ella.settings") : new File(ellaSettingsFilePath);
 		ellaSettingsDir = ellaSettingsFile.getAbsoluteFile().getParentFile().getPath();
 		userDir = System.getProperty("user.dir");
 
-		props = new Properties();
-
+		settingsProp = new Properties();
 		try{
-			props.load(new FileInputStream(ellaSettingsFile));
+			settingsProp.load(new FileInputStream(ellaSettingsFile));
 		} catch(Exception e){
 			throw new Error("Error reading settings file "+ellaSettingsFilePath+".", e);
 		}
@@ -42,18 +65,18 @@ public class EllaLauncher
 
 	String getProperty(String key)
 	{
-		String v = System.getProperty(key);
-		return v == null ? props.getProperty(key) : v;
+		String v = commandLineProp.getProperty(key);
+		return v == null ? settingsProp.getProperty(key) : v;
 	}
 
 	String getPathProperty(String key)
 	{
-		String v = System.getProperty(key);
+		String v = commandLineProp.getProperty(key);
 		if(v != null){
 			File f = new File(v);
 			return f.isAbsolute() ? v : new File(userDir, v).getPath();
 		}
-		v = props.getProperty(key);
+		v = settingsProp.getProperty(key);
 		if(v != null){
 			File f = new File(v);
 			return f.isAbsolute() ? v : new File(ellaSettingsDir, v).getPath();
@@ -78,7 +101,7 @@ public class EllaLauncher
 		throw new RuntimeException("Could not determine Ella directory");
 	}
 	
-	void instrument(String command)
+	void instrument()
 	{
 		Properties outProps = new Properties();
 
@@ -190,13 +213,13 @@ public class EllaLauncher
 		outProps.setProperty("ella.tomcat.url", tomcatUrl);
 
 		//ella.x.*
-		for(String key : props.stringPropertyNames()){
+		for(String key : settingsProp.stringPropertyNames()){
 			if(key.startsWith("ella.x."))
-				outProps.setProperty(key, props.getProperty(key));
+				outProps.setProperty(key, settingsProp.getProperty(key));
 		}
-		for(String key : System.getProperties().stringPropertyNames()){
+		for(String key : commandLineProp.stringPropertyNames()){
 			if(key.startsWith("ella.x."))
-				outProps.setProperty(key, System.getProperty(key));
+				outProps.setProperty(key, commandLineProp.getProperty(key));
 		}
 
 		File ellaInternalSettingsFile = new File(outDir, "ella.settings");

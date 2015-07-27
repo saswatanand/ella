@@ -4,7 +4,7 @@ ELLA_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 if [ "$1" == 'i' ]; then
 shift
-java -Xmx2g -ea -classpath $ELLA_DIR/bin/ella.instrument.jar com.apposcopy.ella.Main -ella.dir $ELLA_DIR -ella.settings $ELLA_DIR/ella.settings -ella.runtime $ELLA_DIR/bin/ella.runtime.dex -ella.apktool $ELLA_DIR/bin/apktool_2.0.0rc4.jar -ella.exclude $ELLA_DIR/ella-exclude.txt $*
+java -ea -classpath $ELLA_DIR/bin/ella.instrument.jar com.apposcopy.ella.EllaLauncher i $*
 exit
 fi
 
