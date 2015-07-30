@@ -20,11 +20,11 @@ of the [Smali](https://github.com/JesusFreke/smali) project).
 
 ## Before building ella
 1. Rename `ella.settings.template` file to `ella.settings`, and if needed, set values of different environment variables of ella.
-2. If the instrumented app will be executed on an emulator *AND* the ella server will be run on the host machine of the emulator, then do nothing. Otherwise, set the `ella.use.emulator.host.loopback` to `false`.
+2. If the instrumented app will be executed on an emulator **and** the ella server will be run on the host machine of the emulator, then do nothing. Otherwise, set:
 ```
 ella.use.emulator.host.loopback=false
 ```
-If `ella.use.emulator.host.loopback` is set to `false` *AND* the ella server will be running on a machine that is different from the machine on which the instrumentor is run, then set the following to the IP address of the machine on which the ella server will be run.
+If `ella.use.emulator.host.loopback` is set to `false` **and** the ella server will be running on a machine that is different from the machine on which the instrumentor is run, then set `ella.server.ip` to the IP address of the machine on which the ella server will be run. For example,
 ```
 ella.server.ip=1.2.3.4
 ```
