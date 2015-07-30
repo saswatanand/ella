@@ -306,7 +306,7 @@ public class Instrument
 		newCode.addInstruction(0, new BuilderInstruction21c(Opcode.CONST_STRING, regCount, new ImmutableStringReference(Config.g().appId)));
 
 		newCode.addInstruction(0, new BuilderInstruction21c(Opcode.SPUT_OBJECT, regCount, uploadUrlField));
-		newCode.addInstruction(0, new BuilderInstruction21c(Opcode.CONST_STRING, regCount, new ImmutableStringReference(Config.g().tomcatUrl+"/ella/uploadcoverage")));
+		newCode.addInstruction(0, new BuilderInstruction21c(Opcode.CONST_STRING, regCount, new ImmutableStringReference(Config.g().serverAddress)));
 
 		newCode.addInstruction(0, new BuilderInstruction21c(Opcode.SPUT_BOOLEAN, regCount, useAndroidDebugField));
 		newCode.addInstruction(0, new BuilderInstruction11n(Opcode.CONST_4, regCount, (Config.g().useAndroidDebug ? 1 : 0)));

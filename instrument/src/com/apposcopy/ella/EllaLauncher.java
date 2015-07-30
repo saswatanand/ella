@@ -193,24 +193,28 @@ public class EllaLauncher
 		outProps.setProperty("ella.jarsigner.keypass", keyPass);
 		outProps.setProperty("ella.jarsigner.alias", alias);
 		
-		//tomcat url
-		String tomcatUrl = getProperty("tomcat.url");
-		if(tomcatUrl != null){
-			tomcatUrl = tomcatUrl.trim();
-			if(!tomcatUrl.startsWith("https://") && !tomcatUrl.startsWith("http://"))
-				throw new RuntimeException("The value of tomcat.url must start with either http:// or https://. Current value: "+tomcatUrl);
+		//ella.server.ip
+		String serverIp = getProperty("ella.server.ip");
+		if(serverIp != null){
+			serverIp = serverIp.trim();
 		} else {
 			if(getProperty("ella.use.emulator.host.loopback").equals("true")){
-				tomcatUrl = "http://10.0.2.2:8080";
+				serverIp = "10.0.2.2";
 			} else {
 				try{
-					tomcatUrl = "http://"+java.net.InetAddress.getLocalHost().getHostAddress()+":8080";
+					serverIp = java.net.InetAddress.getLocalHost().getHostAddress();
 				}catch(java.net.UnknownHostException e){
 					throw new Error(e);
 				}
 			}
 		}
-		outProps.setProperty("ella.tomcat.url", tomcatUrl);
+		outProps.setProperty("ella.server.ip", serverIp);
+
+		//ella.server.port
+		int port = Integer.parseInt(getProperty("ella.server.port"));
+		if(port < 0 || port > 65535)
+			throw new Error("port number "+port+" is not between 0 and 65535");
+		outProps.setProperty("ella.server.port", String.valueOf(port));
 
 		//ella.x.*
 		for(String key : settingsProp.stringPropertyNames()){

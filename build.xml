@@ -47,7 +47,9 @@
          inheritAll="false" useNativeBasedir="true"/>
     <ant antfile="${ella.dir}/runtime/build.xml" target="dex"
          inheritAll="false" useNativeBasedir="true"/>
-    <ant antfile="${ella.dir}/frontend/build.xml" target="war"
+    <!--ant antfile="${ella.dir}/frontend/build.xml" target="war"
+         inheritAll="false" useNativeBasedir="true"/-->
+    <ant antfile="${ella.dir}/server/build.xml" target="jar"
          inheritAll="false" useNativeBasedir="true"/>
   </target>
 
@@ -56,7 +58,9 @@
          inheritAll="false" useNativeBasedir="true"/>
     <ant antfile="${ella.dir}/runtime/build.xml" target="clean"
          inheritAll="false" useNativeBasedir="true"/>
-    <ant antfile="${ella.dir}/frontend/build.xml" target="clean"
+    <!--ant antfile="${ella.dir}/frontend/build.xml" target="clean"
+         inheritAll="false" useNativeBasedir="true"/-->
+    <ant antfile="${ella.dir}/server/build.xml" target="clean"
          inheritAll="false" useNativeBasedir="true"/>
   </target>
 

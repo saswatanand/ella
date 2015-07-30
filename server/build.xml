@@ -1,0 +1,41 @@
+<project name="nanohttp-test" default="jar" basedir=".">
+  <property name="ella.dir" location=".."/>
+  <property file="${ella.dir}/ella.settings"/>
+  <property name="src" location="src"/>
+  <property name="build" location="build"/>
+  <property name="dist"  location="dist"/>
+  <property name="jarname" value="${ella.dir}/bin/ella.server.jar"/>
+
+  <target name="init">
+    <!-- Create the time stamp -->
+    <tstamp/>
+    <!-- Create the build directory structure used by compile -->
+    <mkdir dir="${build}"/>
+  </target>
+
+  <target name="compile" depends="init"
+        description="compile the source " >
+    <!-- Compile the java code from ${src} into ${build} -->
+    <javac srcdir="${src}" destdir="${build}" includeantruntime="false"  debug="true">
+	  <classpath>
+		<pathelement location="libs/gson-2.3.1.jar"/>
+	  </classpath>
+	</javac>
+  </target>
+
+  <target name="jar" depends="compile"
+        description="generate the distribution" >
+	<zip destfile="${jarname}"  update="true">
+	  <fileset dir="${build}" includes="**/*.class"/>
+	  <zipgroupfileset dir="libs" includes="*.jar"/>
+	</zip>
+  </target>
+
+  <target name="clean"
+        description="clean up" >
+    <!-- Delete the ${build} and ${dist} directory trees -->
+    <delete dir="${build}"/>
+    <delete dir="${dist}"/>
+	<delete file="${jarname}"/>
+  </target>
+</project>

@@ -7,6 +7,7 @@ import android.os.SystemClock;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.Socket;
 import java.util.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -105,6 +106,7 @@ public class Ella
 	{
 		private boolean stop = false;
 		private boolean first = true;
+		private OutputStream socketOut;
 
 		UploadThread()
 		{
@@ -113,6 +115,17 @@ public class Ella
 		
 		public void run()
 		{
+			String[] tokens = uploadUrl.split(":");
+			String serverAddress = tokens[0];
+			int port = Integer.parseInt(tokens[1]);
+			try{
+				Socket socket = new Socket(serverAddress, port);
+				socket.setKeepAlive(true);
+				socketOut = socket.getOutputStream();
+			}catch(IOException e){
+				throw new Error(e);
+			}
+
 			while(!stop){
 				try{
 					sleep(UPLOAD_TIME_PERIOD);					
@@ -124,6 +137,12 @@ public class Ella
 				}catch(InterruptedException e){
 					break;
 				}
+			}
+			
+			try{
+				socketOut.close();
+			}catch(IOException e){
+				throw new Error(e);
 			}
 		}
 		
@@ -144,32 +163,19 @@ public class Ella
 					first = false;
 				}
 			} catch(JSONException e) {
-				assert false; // Should never happen
-				return;
+				throw new Error(e);
 			}
 			String jsonString = json.toString();
-			Log.d("ella", "Uploading coverage. id: "+id+ " data size: "+payload.length());
-			URL url = new URL(uploadUrl);
-			HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-			try {
-				urlConnection.setDoOutput(true);
-				urlConnection.setChunkedStreamingMode(0);
-				urlConnection.setRequestProperty("Content-Type", "application/json");
-				urlConnection.setRequestProperty("Accept", "application/json");
-				urlConnection.setRequestMethod("POST");
+			byte[] content = jsonString.getBytes(java.nio.charset.Charset.forName("UTF-8"));
+			Log.d("ella", "Uploading coverage. id: "+id+ " data size: "+content.length);
 
-				OutputStream out = new BufferedOutputStream(urlConnection.getOutputStream());
-				out.write(jsonString.getBytes(java.nio.charset.Charset.forName("UTF-8")));
-				out.flush();
-
-				int responseCode = urlConnection.getResponseCode();
-				if(responseCode == 200)
-					Log.d("ella", "Coverage uploaded. id: "+id+ " data size: "+payload.length());
-				else
-					Log.d("ella", "Failed to upload coverage, server response code: " + responseCode);
-			} finally {
-				urlConnection.disconnect();
-			}
+			try{
+				socketOut.write(content);
+				socketOut.write('\r');socketOut.write('\n');socketOut.write('\r');socketOut.write('\n');
+				socketOut.flush();
+			} catch(IOException e){
+				throw new Error(e);
+			}			
 		}
 	}
 }

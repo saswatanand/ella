@@ -13,9 +13,9 @@ adb shell am broadcast -a com.apposcopy.ella.COVERAGE --es action \"e\"
 exit
 fi
 
-#deploy the web server
-if [ "$1" == 'd' ]; then
-ant -f $ELLA_DIR/frontend/build.xml deploy
+#start the server
+if [ "$1" == 's' ]; then
+java -Xmx2g -ea -classpath bin/ella.server.jar com.apposcopy.ella.server.Server
 exit
 fi
 

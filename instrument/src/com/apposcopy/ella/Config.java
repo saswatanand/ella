@@ -14,7 +14,7 @@ public class Config
 	public String outputFile;
 	public String outDir;
 	public String appId;
-	public String tomcatUrl;
+	public String serverAddress;
 	public String keyStore;
 	public String storePass;
 	public String keyPass;
@@ -76,7 +76,7 @@ public class Config
 		keyPass = props.getProperty("ella.jarsigner.keypass");
 		alias = props.getProperty("ella.jarsigner.alias");
 				
-		tomcatUrl = props.getProperty("ella.tomcat.url");
+		serverAddress = props.getProperty("ella.server.ip")+":"+props.getProperty("ella.server.port");
 		
 		instrumentorClassNames = props.getProperty("ella.instrumentor").trim();
 		
