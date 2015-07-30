@@ -19,11 +19,17 @@ of the [Smali](https://github.com/JesusFreke/smali) project).
 4. Apache Ant
 
 ## Before building ella
-1. Rename `ella.settings.template` file to `ella.settings`.
-2. There are several environment variables. But only the following is mandatory, and need to be set in `ella.settings`. 
-  1. Set `android.jar` to the path to `android.jar` file of the appropriate
-android SDK version. For example, if you will execute the instrumented app in an emulator
-with target API level 19, then use the path to `platforms/android-19/android.jar` inside the android SDK directory.
+1. Rename `ella.settings.template` file to `ella.settings`, and if needed, set values of different environment variables of ella.
+2. If the instrumented app will be executed on an emulator *AND* the ella server will be run on the host machine of the emulator, then do nothing. Otherwise, set the `ella.use.emulator.host.loopback` to `false`.
+```
+ella.use.emulator.host.loopback=false
+```
+If `ella.use.emulator.host.loopback` is set to `false` *AND* the ella server will be running on a machine that is different from the machine on which the instrumentor is run, then set the following to the IP address of the machine on which the ella server will be run.
+```
+ella.server.ip=1.2.3.4
+```
+Otherwise, do nothing.
+
 ## Build ella
 Execute the following command inside ella's installation directory.
 ```

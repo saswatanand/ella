@@ -4,20 +4,28 @@ import org.apache.tools.ant.taskdefs.*;
 import java.util.*;
 import java.io.*;
 
-public class GuessBuildToolsPathTask extends Task
+public class GuessDefaultSettingsTask extends Task
 {
 	public void execute() throws BuildException
 	{
-		String btPath = getProject().getProperty("android.buildtools.dir");
+		String sdkPath = findAndroidSDKPath();
+		String btPath = getProject().getProperty("ella.android.buildtools.dir");
 		if(btPath == null){
-			String sdkPath = findAndroidSDKPath();
 			btPath = findAndroidBuildToolsPath(sdkPath);
 			System.out.println("path to build-tools directory: "+btPath);			
 		}
 		File dxPath = new File(btPath, "dx");
 		if(!dxPath.isFile())
 			throw new Error("The configuration variable android.buildtools.dir is probably not set correctly. Current value is "+btPath);
-		getProject().setProperty("android.buildtools.dir", btPath);
+		getProject().setProperty("ella.android.buildtools.dir", btPath);
+		
+		String androidJarPath = getProject().getProperty("ella.android.jar");
+		if(androidJarPath == null){
+			androidJarPath = findAndroidJarPath(sdkPath);
+			if(androidJarPath == null)
+				throw new Error("Could not automatically infer path to android.jar. Set ella.android.jar variable in the .settings file.");
+			getProject().setProperty("ella.android.jar", androidJarPath);
+		}
 	}
 	
 	String findAndroidSDKPath() 
@@ -52,5 +60,17 @@ public class GuessBuildToolsPathTask extends Task
 		return buildToolsDir.getPath()+File.separator+latestVersion;
 	}
 
-
+	String findAndroidJarPath(String sdkPath)
+	{
+		File platformsDir = new File(sdkPath, "platforms");
+		String latestVersion = null;
+		for(File v : platformsDir.listFiles()){
+			if(!v.getName().startsWith("android-"))
+				continue;
+			File androidJar = new File(v, "android.jar");
+			if(androidJar.isFile())
+				return androidJar.getPath();
+		}
+		return null;
+	}
 }

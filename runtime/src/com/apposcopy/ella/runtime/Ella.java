@@ -2,7 +2,6 @@ package com.apposcopy.ella.runtime;
 
 import android.util.Log;
 import android.os.Debug;
-import android.os.SystemClock;
 
 import java.io.*;
 import java.net.HttpURLConnection;

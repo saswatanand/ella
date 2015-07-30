@@ -56,7 +56,7 @@ public class Config
 		outputFile = props.getProperty("ella.outputfile");
 		appId = props.getProperty("ella.appid");
 
-		String btPath = props.getProperty("android.buildtools.dir");
+		String btPath = props.getProperty("ella.android.buildtools.dir");
 
 		dxJar = btPath + File.separator + "lib" + File.separator + "dx.jar";
 

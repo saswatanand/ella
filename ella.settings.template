@@ -1,35 +1,26 @@
-####################
-# Mandatory settings
-####################
+# Copy this file to a file named "ella.settings"
+# and change that file if necessary
 
-# android jar to compile (ella runtime library) against
-android.jar=/opt/android-sdk-linux/platforms/android-19/android.jar
-
-#tomcat settings
-tomcat.dir=/home/saswat/ella2/apache-tomcat-7.0.59
-tomcat.manager=XXXXX
-tomcat.password=XXXX
-
-####################
-# Optional settings
-####################
-
-#tomcat ROOT URL
-#Dont use http://localhost:8080. 
-#tomcat.url=http://XXXX.stanford.edu:8080
-
-# set to true if using emulator on a host that is running the webapp
-# otherwise set to false
+# set to "true" if the instrumented app will be executed on an emulator *AND*
+# the ella server will be run on the host machine of the emulator.
+# otherwise set to "false"
 ella.use.emulator.host.loopback=true
+
+# if ella.use.emulator.host.loopback is set to "false" *AND*
+# ella server will be running on a machine that is different
+# from the machine on which instrumentor is run, then set
+# the following to the IP address of the machine on which
+# the ella server will be run
+#ella.server.ip=1.2.3.4
+
+#port number that ella server is listening on
+ella.server.port=23745
 
 # directory where ella stores coverage data and other stuff
 ella.outdir=ella-out
 
-# path to "build-tools" inside android SDK
-#android.buildtools.dir=/opt/android-sdk-linux/build-tools/22.0.1/
-
-#ella.instrumentor=com.apposcopy.ella.CallArgInstrumentor,com.apposcopy.ella.MethodParamInstrumentor
 ella.instrumentor=com.apposcopy.ella.MethodCoverageInstrumentor
+#ella.instrumentor=com.apposcopy.ella.CallArgInstrumentor,com.apposcopy.ella.MethodParamInstrumentor
 
 # generate a trace that can be fed to traceview toold
 ella.android.debug=false
@@ -39,6 +30,14 @@ ella.exclude=ella-exclude.txt
 
 # max heap space given to JVM running the instrumentor 
 ella.instrumentor.max.heapsize=2g
+
+# path to "build-tools" inside android SDK
+# in default setting, the path is estimated
+#android.buildtools.dir=/opt/android-sdk-linux/build-tools/22.0.1/
+
+# android jar to compile (ella runtime library) against
+# in default setting, the path is estimated
+#ella.android.jar=/opt/android-sdk-linux/platforms/android-19/android.jar
 
 # settings used by jarsigner to sign the instrumented apk
 ella.jarsigner.keystore=.android/debug.keystore

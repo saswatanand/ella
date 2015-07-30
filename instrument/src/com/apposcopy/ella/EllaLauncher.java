@@ -156,7 +156,7 @@ public class EllaLauncher
 		outProps.setProperty("ella.apktool", ellaDir+File.separator+"bin"+File.separator+apktoolJar[0]);
 
 		//android.buildtools.dir
-		String btPath = getPathProperty("android.buildtools.dir");
+		String btPath = getPathProperty("ella.android.buildtools.dir");
 		if(btPath == null){
 			String sdkPath = findAndroidSDKPath();
 			btPath = findAndroidBuildToolsPath(sdkPath);
@@ -165,7 +165,7 @@ public class EllaLauncher
 		File dxPath = new File(btPath, "dx");
 		if(!dxPath.isFile())
 			throw new Error("The configuration variable android.buildtools.dir is probably not set correctly. Current value is "+btPath);
-		outProps.setProperty("android.buildtools.dir", btPath);
+		outProps.setProperty("ella.android.buildtools.dir", btPath);
 		
 		//ella.android.debug
 		outProps.setProperty("ella.android.debug", getProperty("ella.android.debug"));
@@ -197,12 +197,15 @@ public class EllaLauncher
 		String serverIp = getProperty("ella.server.ip");
 		if(serverIp != null){
 			serverIp = serverIp.trim();
+			System.out.println("The ella server must be run on "+serverIp);
 		} else {
 			if(getProperty("ella.use.emulator.host.loopback").equals("true")){
+				System.out.println("The instrumented app must be executed on an emulator and the ella server must be run on the host machine of the emulator.");
 				serverIp = "10.0.2.2";
 			} else {
 				try{
 					serverIp = java.net.InetAddress.getLocalHost().getHostAddress();
+					System.out.println("Assuming that the ella server will be running on this machine with IP "+serverIp+". If that assumption is incorrect then set the ella.server.ip variable");
 				}catch(java.net.UnknownHostException e){
 					throw new Error(e);
 				}

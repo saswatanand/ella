@@ -9,10 +9,16 @@
   <property name="dexname" value="${ella.dir}/bin/ella.runtime.dex"/>
 
   <target name="init">
-    <!-- Create the time stamp -->
-    <tstamp/>
     <!-- Create the build directory structure used by compile -->
     <mkdir dir="${build}"/>
+
+	<javac srcdir="." destdir="." debug="true">
+	  <include name="GuessDefaultSettingsTask.java"/>
+	</javac>
+    <taskdef name="GuessDefaultSettings"
+			 classname="GuessDefaultSettingsTask"
+			 classpath="."/>
+	<GuessDefaultSettings/>
   </target>
 
   <target name="compile" depends="init"
@@ -20,7 +26,7 @@
     <!-- Compile the java code from ${src} into ${build} -->
     <javac srcdir="${src}" destdir="${build}" includeantruntime="false" debug="true" target="1.7">
 	  <classpath>
-		<pathelement location="${android.jar}"/>
+		<pathelement location="${ella.android.jar}"/>
 		<!--pathelement location="libs/httpcore-4.3.3.jar"/-->
 		<!--pathelement location="libs/httpmime-4.3.6.jar"/-->
 	  </classpath>
@@ -28,14 +34,7 @@
   </target>
 
   <target name="dex" depends="jar">
-	<javac srcdir="." destdir="." debug="true">
-	  <include name="GuessBuildToolsPathTask.java"/>
-	</javac>
-    <taskdef name="GuessBuildToolsPath"
-			 classname="GuessBuildToolsPathTask"
-			 classpath="."/>
-	<GuessBuildToolsPath/>
-    <exec executable="${android.buildtools.dir}/dx"
+    <exec executable="${ella.android.buildtools.dir}/dx"
           spawn="true">
 	  <arg value="--dex"/>
 	  <arg value="--output"/>
