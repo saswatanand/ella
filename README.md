@@ -1,15 +1,16 @@
-ELLA: A Code Coverage Tool for Android APK's 
+ELLA: An Binary Instrumentation Tool for Android Apps
 ====
 
-Ella is a tool to instrument Android APK's to collect
-coverage. Currently, ella can collect method coverage and time-stamped trace of covered methods.
+Ella is a tool to instrument Android APK's for various purposes. Out of the box, it instruments
+apps to record which methods gets executed. It can also record time-stamped trace of executed
+methods, values of arguments passed at call-sites, values of formal parameters of methods, etc.
 
 Several tools exist that can instrument APK's to some
 degree. But they usually do not work very reliably because they
 translate Dalvik bytecodes to another form such as Java bytecode or
 internal representations of other tools, and this translation is quite
 challenging.  Thus, Ella's approach is to instrument at the Dalvik
-bytecode level. It does so by using the great DexLib2 library (a part
+bytecode level. It does so by builiding atop the DexLib2 library (a part
 of the [Smali](https://github.com/JesusFreke/smali) project).
 
 ## Pre-requisite
@@ -60,7 +61,3 @@ ella.sh e
 ## Coverage data
 
 The coverage data are stored inside a subdirectory of `<ella-home>/ella-out` directory, where `<ella-home>` represents the installation directory of ella. The name of the subdirectory is derived from `<path-to-apk>`. Currently, coverage data are stored in files `coverage.dat` and `covids`. `covids` contain the list of method signatures; index of a method is its identifier. `coverage.dat` contains the list of method identifiers that were executed.
-
-## Troubleshooting
-
-If the instrumented app appears to fail uploading the coverage data, check output of `adb logcat`. One likely cause is that the `tomcat.url` URL is not accessible from the emulator/phone.
