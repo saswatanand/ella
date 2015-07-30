@@ -1,4 +1,4 @@
-ELLA: An Binary Instrumentation Tool for Android Apps
+ELLA: A Tool for Binary Instrumentation of Android Apps
 ====
 
 Ella is a tool to instrument Android APK's for various purposes. Out of the box, it instruments
