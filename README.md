@@ -45,15 +45,19 @@ ella.sh i <path-to-apk>
 
 `<path-to-apk>` is the Apk that you want to instrument. This command would produce the instrumented apk named `instrumented.apk` inside a subdirectory inside `<ella-home>/ella-out` directory, where `<ella-home>` represents the installation directory of ella. The name of the subdirectory is derived from `<path-to-apk>`.
 
-## Before executing the instrumented app, start the ella server. 
+## Start ella server
+Before executing any instrumented app, ella server must be up and running. To start the ella server, execute the following command.
 ```
 ella.sh s
 ```
-
-## Collecting coverage
+Whenever needed, the ella server can be shutdown by executing the following command
+```
+ella.sh k
+```
+## Execute the instrumented app 
 1. Install the `instrumented.apk` on the emulator or device. You may have to uninstall it first if the app is already installed.
 2. Execute the instrumented app. The instrumented app will send coverage data periodically to the ella server.
-3. To end recording coverage data, execute the following command on computer connected to the device/emulator. `e` stands for "end" in end recording coverage data.
+3. To end recording and uploading coverage data, either simply kill the app **or** execute the following command on computer connected to the device/emulator. `e` stands for "end" in end recording coverage data.
 ```
 ella.sh e
 ```

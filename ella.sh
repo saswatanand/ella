@@ -15,7 +15,13 @@ fi
 
 #start the server
 if [ "$1" == 's' ]; then
-java -Xmx2g -ea -classpath bin/ella.server.jar com.apposcopy.ella.server.Server
+java -ea -classpath bin/ella.server.jar com.apposcopy.ella.server.ServerController start
+exit
+fi
+
+#start the server
+if [ "$1" == 'k' ]; then
+java -ea -classpath bin/ella.server.jar com.apposcopy.ella.server.ServerController kill
 exit
 fi
 

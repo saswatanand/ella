@@ -197,7 +197,7 @@ public class EllaLauncher
 		String serverIp = getProperty("ella.server.ip");
 		if(serverIp != null){
 			serverIp = serverIp.trim();
-			System.out.println("The ella server must be run on "+serverIp);
+			System.out.println("The ella server must be run on "+serverIp+" (explicitly specified in ella settings)");
 		} else {
 			if(getProperty("ella.use.emulator.host.loopback").equals("true")){
 				System.out.println("The instrumented app must be executed on an emulator and the ella server must be run on the host machine of the emulator.");

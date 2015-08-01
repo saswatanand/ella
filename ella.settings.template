@@ -31,6 +31,9 @@ ella.exclude=ella-exclude.txt
 # max heap space given to JVM running the instrumentor 
 ella.instrumentor.max.heapsize=2g
 
+# max heap space given to JVM running the server
+ella.server.max.heapsize=2g
+
 # path to "build-tools" inside android SDK
 # in default setting, the path is estimated
 #android.buildtools.dir=/opt/android-sdk-linux/build-tools/22.0.1/
