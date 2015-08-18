@@ -15,13 +15,13 @@ fi
 
 #start the server
 if [ "$1" == 's' ]; then
-java -ea -classpath bin/ella.server.jar com.apposcopy.ella.server.ServerController start
+java -ea -classpath $ELLA_DIR/bin/ella.server.jar com.apposcopy.ella.server.ServerController start
 exit
 fi
 
 #start the server
 if [ "$1" == 'k' ]; then
-java -ea -classpath bin/ella.server.jar com.apposcopy.ella.server.ServerController kill
+java -ea -classpath $ELLA_DIR/bin/ella.server.jar com.apposcopy.ella.server.ServerController kill
 exit
 fi
 
