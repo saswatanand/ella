@@ -36,7 +36,7 @@ ella.server.max.heapsize=2g
 
 # path to "build-tools" inside android SDK
 # in default setting, the path is estimated
-#android.buildtools.dir=/opt/android-sdk-linux/build-tools/22.0.1/
+#ella.android.buildtools.dir=/opt/android-sdk-linux/build-tools/22.0.1/
 
 # android jar to compile (ella runtime library) against
 # in default setting, the path is estimated
