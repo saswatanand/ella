@@ -201,7 +201,11 @@ public class App
 						 "b",  "-o", outputFile.getAbsolutePath(), apktoolOutDir};
 						 
 		try{
-			int exitCode = Runtime.getRuntime().exec(args).waitFor();
+			
+			Process p = Runtime.getRuntime().exec(args);
+			BufferedReader reader = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+			while(reader.readLine() != null){}
+			int exitCode = p.waitFor();
 			if(exitCode != 0) {
 				for(String a : args) System.out.print(a+" ");
 				System.out.println("");
@@ -212,8 +216,6 @@ public class App
 			System.out.println("");
 			throw new Error("Error in repackaging the apk.");
 		}
-
-		
 
 		/*
 		//stick the new dex file into the output apk
